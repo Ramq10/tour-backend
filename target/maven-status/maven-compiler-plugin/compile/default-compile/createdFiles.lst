@@ -4,6 +4,7 @@ com\tour\exception\NotFoundException.class
 com\tour\repository\UserRepository.class
 com\tour\controller\CommentController.class
 com\tour\repository\CityRepository.class
+com\tour\utils\EmailSender.class
 com\tour\entity\File.class
 com\tour\controller\TravelStoryController.class
 com\tour\config\TourUserDetails.class
@@ -30,6 +31,7 @@ com\tour\exception\BadRequestException.class
 com\tour\controller\BlogPostController.class
 com\tour\services\BlogPostService.class
 com\tour\controller\CountryController.class
+com\tour\entity\HashTag.class
 com\tour\repository\ContactUsRepository.class
 com\tour\entity\dto\CommentDTO.class
 com\tour\exception\GlobalException.class
@@ -39,14 +41,17 @@ com\tour\services\FileService.class
 com\tour\entity\TravelStory.class
 com\tour\enums\BlogGenres.class
 com\tour\exception\UnprocessableEntityException.class
+com\tour\repository\HashTagRepository.class
 com\tour\config\AuthorizationServerConfiguration.class
 com\tour\services\AuthenticationService.class
+com\tour\entity\dto\HashTagsDTO.class
 com\tour\exception\UserDeletedException.class
 com\tour\entity\Country.class
 com\tour\services\CountryService.class
 com\tour\entity\Comment.class
 com\tour\repository\CommentRepository.class
 com\tour\entity\Subscriber.class
+com\tour\config\ThymeleafConfig.class
 com\tour\utils\CommonUtil.class
 com\tour\exception\UnauthorizedException.class
 com\tour\enums\Gender.class

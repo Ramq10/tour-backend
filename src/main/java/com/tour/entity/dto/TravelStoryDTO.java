@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.tour.entity.File;
-import com.tour.entity.HashTag;
 import com.tour.entity.TravelStory;
 
 /**
@@ -29,7 +28,7 @@ public class TravelStoryDTO {
 	private long likeCount;
 	private long commentCount;
 	private LocalDate createDate;
-	private List<HashTag> tags;
+	private List<HashTagsDTO> tags;
 	private List<CommentDTO> comments;
 	private Long view;
 
@@ -41,7 +40,7 @@ public class TravelStoryDTO {
 				? travelStory.getFiles().get(0).getId()
 				: null);
 		this.userId = travelStory.getUser() != null ? travelStory.getUser().getId() : null;
-		this.userName = travelStory.getUser()!= null ? travelStory.getUser().getName(): "anonymous";
+		this.userName = travelStory.getUser() != null ? travelStory.getUser().getName() : "anonymous";
 		this.files = travelStory.getFiles();
 		this.likeCount = travelStory.getLikedBy() != null ? travelStory.getLikedBy().size() : 0;
 		this.commentCount = travelStory.getComments() != null ? travelStory.getComments().size() : 0;
@@ -50,7 +49,7 @@ public class TravelStoryDTO {
 				: null;
 		this.setCreateDate(travelStory.getCreateDate());
 		this.view = travelStory.getView();
-		this.tags = travelStory.getTags();
+		this.setTags(travelStory.getTags().stream().map(m -> new HashTagsDTO(m)).collect(Collectors.toList()));
 	}
 
 	public TravelStoryDTO(TravelStory travelStory, String a) {
@@ -68,7 +67,7 @@ public class TravelStoryDTO {
 				: null;
 		this.setCreateDate(travelStory.getCreateDate());
 		this.view = travelStory.getView();
-		this.tags = travelStory.getTags();
+		this.setTags(travelStory.getTags().stream().map(m -> new HashTagsDTO(m)).collect(Collectors.toList()));
 	}
 
 	/**
@@ -181,11 +180,11 @@ public class TravelStoryDTO {
 		this.userName = userName;
 	}
 
-	public List<HashTag> getTags() {
+	public List<HashTagsDTO> getTags() {
 		return tags;
 	}
 
-	public void setTags(List<HashTag> tags) {
+	public void setTags(List<HashTagsDTO> tags) {
 		this.tags = tags;
 	}
 

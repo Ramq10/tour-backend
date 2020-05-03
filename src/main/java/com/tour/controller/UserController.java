@@ -35,20 +35,25 @@ public class UserController {
 	public UserDTO getById(@PathVariable Long id) {
 		return userService.getUserDTOById(id);
 	}
-	
+
 	@GetMapping("/user/email/{email}")
 	public UserDTO getByEmail(@PathVariable String email) {
 		return userService.getUserDTOByEmail(email);
 	}
-	
+
 	@GetMapping("/logged-in-user")
 	public UserDTO getAuthenticatedUser() {
 		return userService.getLoggedInUserDTO();
 	}
-	
+
 	@PostMapping("/subscribe")
 	public void subscribe(@RequestParam String email) {
 		userService.subscribe(email);
+	}
+
+	@PostMapping("/forget-password/{mail}")
+	public void forgetPasswordRequest(@PathVariable String mail) {
+		userService.forgetPasswordRequest(mail);
 	}
 
 }

@@ -1,3 +1,4 @@
+
 package com.tour.config;
 
 import org.slf4j.Logger;
@@ -40,10 +41,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 				.antMatchers(HttpMethod.OPTIONS, "/**/oauth/token").permitAll().antMatchers("/**/contact-us/")
 				.permitAll().antMatchers("/**/forget-password/{mail}").permitAll().antMatchers("/**/set-password/")
 				.permitAll().antMatchers("/**/user/").permitAll().antMatchers("/**/all-story/").permitAll()
-				.antMatchers("/**/all-blog/").permitAll().antMatchers("/**/file/upload/").permitAll()
+				.antMatchers("/**/all-blog/**").permitAll().antMatchers("/**/file/upload/").permitAll()
 				.antMatchers("/**/country/{id}").permitAll().antMatchers("/**/blog-genre/").permitAll()
-				.antMatchers("/**/subscribe/").permitAll()
-				.antMatchers("/**/tags/").permitAll().antMatchers("/**/story/{id}").permitAll().antMatchers("/**/v-blog/").permitAll()
+				.antMatchers("/**/subscribe/").permitAll().antMatchers("/**/all-story/tags/{id}").permitAll()
+				.antMatchers("/**/tags/").permitAll().antMatchers("/**/story/{id}").permitAll().antMatchers("/**/v-blog/**").permitAll()
 				.antMatchers("/**/file/{id}").permitAll().antMatchers("/**/state/{id}").permitAll().antMatchers("/**/country").permitAll().anyRequest().authenticated();
 	}
 

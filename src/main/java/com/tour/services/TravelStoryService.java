@@ -19,6 +19,7 @@ import com.tour.entity.File;
 import com.tour.entity.HashTag;
 import com.tour.entity.TravelStory;
 import com.tour.entity.User;
+import com.tour.entity.dto.HashTagsDTO;
 import com.tour.entity.dto.TravelStoryDTO;
 import com.tour.exception.UnprocessableEntityException;
 import com.tour.repository.HashTagRepository;
@@ -74,7 +75,7 @@ public class TravelStoryService {
 	 * @param tags
 	 * @return
 	 */
-	private List<HashTag> validateTags(List<HashTag> tags) {
+	private List<HashTag> validateTags(List<HashTagsDTO> tags) {
 		List<HashTag> hashTags = new ArrayList<HashTag>();
 		tags.stream().forEach(f -> {
 			hashTags.add(hashTagRepository.findById(f.getId()).get());
@@ -169,8 +170,8 @@ public class TravelStoryService {
 
 	}
 
-	public List<HashTag> getAllTags() {
-		return hashTagRepository.findAll();
+	public List<HashTagsDTO> getAllTags() {
+		return hashTagRepository.findAll().stream().map(n->new HashTagsDTO(n)).collect(Collectors.toList());
 	}
 	
 	public List<TravelStoryDTO> getStoryByTag(Long tagId) {

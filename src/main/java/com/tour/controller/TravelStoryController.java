@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tour.entity.HashTag;
+import com.tour.entity.dto.HashTagsDTO;
 import com.tour.entity.dto.TravelStoryDTO;
 import com.tour.services.TravelStoryService;
 
@@ -52,7 +53,7 @@ public class TravelStoryController {
 	}
 	
 	@GetMapping("/tags")
-	public List<HashTag> getAllTags() {
+	public List<HashTagsDTO> getAllTags() {
 		return experienceStoryService.getAllTags();
 	}
 	

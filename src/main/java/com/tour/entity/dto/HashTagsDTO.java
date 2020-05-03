@@ -17,8 +17,8 @@ public class HashTagsDTO {
 	public HashTagsDTO(HashTag hashTag) {
 		this.id = hashTag.getId();
 		this.name = hashTag.getName();
-		this.story = hashTag.getTravelStory().stream().map(n -> new TravelStoryDTO(n)).collect(Collectors.toList());
-		this.blogPost = hashTag.getBlogPost().stream().map(n -> new BlogPostDTO(n)).collect(Collectors.toList());
+//		this.story = hashTag.getTravelStory().stream().map(n -> new TravelStoryDTO(n)).collect(Collectors.toList());
+//		this.blogPost = hashTag.getBlogPost().stream().map(n -> new BlogPostDTO(n)).collect(Collectors.toList());
 	}
 
 	public Long getId() {

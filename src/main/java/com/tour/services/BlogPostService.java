@@ -4,7 +4,6 @@
 package com.tour.services;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,13 +18,11 @@ import org.springframework.stereotype.Service;
 
 import com.tour.entity.BlogPost;
 import com.tour.entity.File;
-import com.tour.entity.HashTag;
 import com.tour.entity.User;
 import com.tour.entity.dto.BlogPostDTO;
 import com.tour.enums.BlogGenres;
 import com.tour.exception.UnprocessableEntityException;
 import com.tour.repository.BlogPostRepository;
-import com.tour.repository.HashTagRepository;
 
 /**
  * @author 91945
@@ -43,8 +40,6 @@ public class BlogPostService {
 	@Autowired
 	@Lazy
 	private AuthenticationService authenticationService;
-	@Autowired
-	private HashTagRepository hashTagRepository;
 
 	/**
 	 * @param blogPostDTO
@@ -53,7 +48,7 @@ public class BlogPostService {
 		logger.info("Inside BlogPostService::saveOrUpdate");
 		validate(blogPostDTO);
 		BlogPost blogPostFromDB = null;
-		List<HashTag> tags = new ArrayList<HashTag>();
+//		List<HashTag> tags = new ArrayList<HashTag>();
 		File blogImage = new File();
 		if (blogPostDTO.getBlogImageId() != null) {
 			blogImage = validateBlogImage(blogPostDTO.getBlogImageId());
@@ -68,10 +63,10 @@ public class BlogPostService {
 			validateUser(blogPostFromDB.getBlogger());
 			blogPostFromDB.setModifiedDate(LocalDate.now());
 		}
-		if (blogPostDTO.getTags() != null) {
-			tags = validateTags(blogPostDTO.getTags());
-		}
-		blogPostFromDB.setTags(tags);
+//		if (blogPostDTO.getTags() != null) {
+//			tags = validateTags(blogPostDTO.getTags());
+//		}
+//		blogPostFromDB.setTags(tags);
 		blogPostFromDB.setBlogger(authenticationService.getAuthenticatedUser());
 		blogPostFromDB.setBlogImage(blogImage);
 		blogPostFromDB.setView(0L);
@@ -79,13 +74,13 @@ public class BlogPostService {
 		blogPostRepository.save(blogPostFromDB);
 	}
 
-	private List<HashTag> validateTags(List<HashTag> tags) {
-		List<HashTag> hashTags = new ArrayList<HashTag>();
-		tags.stream().forEach(f -> {
-			hashTags.add(hashTagRepository.findById(f.getId()).get());
-		});
-		return hashTags;
-	}
+//	private List<HashTag> validateTags(List<HashTag> tags) {
+//		List<HashTag> hashTags = new ArrayList<HashTag>();
+//		tags.stream().forEach(f -> {
+//			hashTags.add(hashTagRepository.findById(f.getId()).get());
+//		});
+//		return hashTags;
+//	}
 
 	private void validateUser(User blogger) {
 		if (blogger.getId() != authenticationService.getAuthenticatedUser().getId()) {
@@ -119,14 +114,14 @@ public class BlogPostService {
 		logger.info("Completed BlogPostService::getBlogById");
 		return blogPost.get();
 	}
-	
+
 	public BlogPostDTO getBlogDTOById(Long id) {
 		logger.info("Inside BlogPostService::getBlogDTOById");
 		Optional<BlogPost> blogPost = blogPostRepository.findById(id);
 		if (blogPost == null || !blogPost.isPresent()) {
 			throw new UnprocessableEntityException("Invalid BlogPost.");
 		}
-		if(blogPost.get().getView() == null) {
+		if (blogPost.get().getView() == null) {
 			blogPost.get().setView(0l);
 		}
 		Long view = blogPost.get().getView() + 1;
@@ -170,11 +165,11 @@ public class BlogPostService {
 	 */
 	public List<BlogPostDTO> getAllBlogPost(String sortedBy) {
 		switch (sortedBy) {
-		case"date":
+		case "date":
 			return blogPostRepository.findByvBlogOrderByCreateDateDesc(false).stream().map(m -> {
 				return new BlogPostDTO(m);
 			}).collect(Collectors.toList());
-		case"view":
+		case "view":
 			return blogPostRepository.findByvBlogOrderByViewAsc(false).stream().map(m -> {
 				return new BlogPostDTO(m);
 			}).collect(Collectors.toList());
@@ -184,14 +179,14 @@ public class BlogPostService {
 			}).collect(Collectors.toList());
 		}
 	}
-	
+
 	public List<BlogPostDTO> getAllVideoBlogPost(String sortedBy) {
 		switch (sortedBy) {
-		case"date":
+		case "date":
 			return blogPostRepository.findByvBlogOrderByCreateDateDesc(true).stream().map(m -> {
 				return new BlogPostDTO(m);
 			}).collect(Collectors.toList());
-		case"view":
+		case "view":
 			return blogPostRepository.findByvBlogOrderByViewAsc(true).stream().map(m -> {
 				return new BlogPostDTO(m);
 			}).collect(Collectors.toList());
@@ -205,16 +200,29 @@ public class BlogPostService {
 	public List<String> getAllBlog() {
 		return BlogGenres.genreList();
 	}
-	
-	public List<BlogPostDTO> getBlogPostByTag(Long tagId) {
-		HashTag hashTag = hashTagRepository.findById(tagId).get();
-		if(hashTag != null) {
-			return hashTag.getBlogPost().stream().map(m -> {
-				return new BlogPostDTO(m);
-			}).collect(Collectors.toList());
-		} else {
-			logger.info("Invalid HashTag. id = {}",tagId);
-			throw new UnprocessableEntityException("Invalid HashTag.");
-		}
+
+	public List<BlogPostDTO> findAllByBlogGenre(String value) {
+		BlogGenres blogGenre = BlogGenres.getEnum(value);
+		return blogPostRepository.findByvBlogAndBlogGenreOrderByCreateDateDesc(false, blogGenre).stream().map(b -> new BlogPostDTO(b))
+				.collect(Collectors.toList());
 	}
+
+	public List<BlogPostDTO> findVlogByBlogGenre(String value) {
+		BlogGenres blogGenre = BlogGenres.getEnum(value);
+		return blogPostRepository.findByvBlogAndBlogGenreOrderByCreateDateDesc(true, blogGenre).stream().map(b -> new BlogPostDTO(b))
+				.collect(Collectors.toList());
+
+	}
+
+//	public List<BlogPostDTO> getBlogPostByTag(Long tagId) {
+//		HashTag hashTag = hashTagRepository.findById(tagId).get();
+//		if (hashTag != null) {
+//			return hashTag.getBlogPost().stream().map(m -> {
+//				return new BlogPostDTO(m);
+//			}).collect(Collectors.toList());
+//		} else {
+//			logger.info("Invalid HashTag. id = {}", tagId);
+//			throw new UnprocessableEntityException("Invalid HashTag.");
+//		}
+//	}
 }

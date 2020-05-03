@@ -40,7 +40,7 @@ public class BlogPostDTO {
 		this.vBlog = blogPost.getvBlog();
 		this.postedDate = blogPost.getCreateDate();
 		this.view = blogPost.getView();
-		this.setTags(blogPost.getTags());
+//		this.setTags(blogPost.getTags());
 	}
 
 	public BlogPostDTO() {

@@ -28,6 +28,7 @@ import com.tour.repository.StateRepository;
 import com.tour.repository.SubscriberRepository;
 import com.tour.repository.UserRepository;
 import com.tour.utils.CommonUtil;
+import com.tour.utils.EmailSender;
 
 /**
  * @author Ramanand
@@ -52,6 +53,8 @@ public class UserService {
 	private FileService fileService;
 	@Autowired
 	private SubscriberRepository subscriberRepository;
+	@Autowired
+	private EmailSender emailSender;
 
 	/**
 	 * @param user
@@ -82,7 +85,20 @@ public class UserService {
 		userFromDB.setProfilePhoto(profilePhoto);
 		setAddress(userFromDB, userDTO);
 		logger.info("Completed UserService::saveOrUpdate");
-		return new UserDTO(userRepository.save(userFromDB));
+//		return new UserDTO(userRepository.save(userFromDB));
+		return saveUser(userFromDB);
+	}
+
+	private UserDTO saveUser(User userFromDB) {
+		logger.info("Inside UserService::saveUser");
+		UserDTO user = new UserDTO(userRepository.save(userFromDB));
+		Runnable mailThread = () -> {
+			emailSender.sendWelcomeMail(user.getName(), user.getEmail(), "Welcome To Roverstrail",
+					"User " + user.getEmail() + " has successfully registered with RoversTrail.");
+		};
+		new Thread(mailThread).start();
+		logger.info("Completed UserService::saveUser");
+		return user;
 	}
 
 	/**
@@ -179,14 +195,11 @@ public class UserService {
 		logger.info("Inside UserService::validate");
 		if (StringUtils.isBlank(user.getName()) || !CommonUtil.isNameValid(user.getName())
 				|| user.getName().length() > 30) {
-			throw new UnprocessableEntityException("Please enter a valid First Name.");
+			throw new UnprocessableEntityException("Please enter a valid Name.");
 		}
 		if (StringUtils.isBlank(user.getEmail()) || !CommonUtil.isEmailValid(user.getEmail())
 				|| user.getEmail().length() > 65) {
 			throw new UnprocessableEntityException("Please enter a valid email.");
-		}
-		if (StringUtils.isBlank(user.getMobileNumber())) {
-			throw new UnprocessableEntityException("Please enter mobile number.");
 		}
 		if (StringUtils.isBlank(user.getHobby())) {
 			throw new UnprocessableEntityException("Please enter valid Hobby.");
@@ -231,9 +244,7 @@ public class UserService {
 	 * @return
 	 */
 	public User getUserByEmail(String email) {
-		User user = userRepository.findByEmail(email);
-		return user;
-
+		return userRepository.findByEmail(email);
 	}
 
 	/**
@@ -245,11 +256,20 @@ public class UserService {
 	}
 
 	public void subscribe(String email) {
-		Subscriber subscriber =  new Subscriber();
+		logger.info("Inside UserService::subscribe");
+		Subscriber subscriber = new Subscriber();
 		subscriber.setEmail(email);
 		subscriberRepository.save(subscriber);
-		
-		
+		logger.info("Competed UserService::subscribe");
+	}
+
+	public void forgetPasswordRequest(String userEmail) {
+		User user = getUserByEmail(userEmail);
+		if(user == null) {
+			logger.info("Email does not exist.");
+			throw new UnprocessableEntityException("Email does not exist.");
+		}
+		emailSender.sendForgetPasswordMail(user.getEmail(), "Reset Password");
 	}
 
 }

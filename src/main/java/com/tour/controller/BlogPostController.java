@@ -18,7 +18,7 @@ import com.tour.entity.dto.BlogPostDTO;
 import com.tour.services.BlogPostService;
 
 /**
- * @author 91945
+ * @author Ramanand
  *
  */
 @RestController
@@ -47,15 +47,20 @@ public class BlogPostController {
 	public List<BlogPostDTO> getAllVideoBlog(@RequestParam(required = false) String sortedBy) {
 		return blogPostService.getAllVideoBlogPost(sortedBy);
 	}
-
+ 
 	@GetMapping("/blog-genre")
 	public List<String> getBlogGenre() {
 		return blogPostService.getAllBlog();
 	}
 
-	@GetMapping("/all-blog/tags/{id}")
-	public List<BlogPostDTO> getAllStoryTags(@PathVariable Long id) {
-		return blogPostService.getBlogPostByTag(id);
+	@GetMapping("/all-blog/genre/{genre}")
+	public List<BlogPostDTO> getAllBlogByGenre(@PathVariable String genre) {
+		return blogPostService.findAllByBlogGenre(genre);
+	}
+
+	@GetMapping("/v-blog/genre/{genre}")
+	public List<BlogPostDTO> getAllVlogByGenre(@PathVariable String genre) {
+		return blogPostService.findVlogByBlogGenre(genre);
 	}
 
 }

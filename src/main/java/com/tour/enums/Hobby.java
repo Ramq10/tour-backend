@@ -15,7 +15,7 @@ import com.tour.exception.UnprocessableEntityException;
  */
 public enum Hobby {
 	
-	PHOTOGRAPHY("Photography"), READINGnWRINTING("Reading/Writing"), TRECKING("Trecking"), MEDITATIONnYOGA("Meditation/Yoga"), DANCING("Dancing"), FOODING("Fooding");
+	PHOTOGRAPHY("Photography"), READINGnWRINTING("Reading/Writing"), TREKKING("Trekking"), MEDITATIONnYOGA("Meditation/Yoga"), DANCING("Dancing"), FOODING("Fooding");
 	
 	private String type;
 
