@@ -36,7 +36,7 @@ public class BlogPost extends BaseEntity {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "url")
+	@Column(name = "url", length = 300)
 	private String url;
 
 	@OneToOne(cascade = CascadeType.ALL)
@@ -51,13 +51,13 @@ public class BlogPost extends BaseEntity {
 	@JoinColumn(name = "candidate_id")
 	private User blogger;
 
-	@Column(name = "title")
+	@Column(name = "title", length = 100)
 	private String title;
 	
 	@Column(name = "view")
 	private Long view;
 
-	@Column(name = "summery")
+	@Column(name = "summery", length = 500)
 	private String summery;
 
 	@Column(name = "vblog")

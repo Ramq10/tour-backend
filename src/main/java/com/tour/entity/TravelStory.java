@@ -35,7 +35,7 @@ public class TravelStory extends BaseEntity {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "story_title")
+	@Column(name = "story_title", length = 100)
 	private String title;
 
 	@Column(name = "discription", length = 100000)

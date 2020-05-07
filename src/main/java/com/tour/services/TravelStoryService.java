@@ -101,11 +101,21 @@ public class TravelStoryService {
 	private void validate(TravelStoryDTO experienceStoryDTO) {
 		logger.info("Inside TravelStoryServce::validate");
 		if (StringUtils.isBlank(experienceStoryDTO.getTitle())) {
+			logger.info("Please enter title.");
 			throw new UnprocessableEntityException("Please enter title.");
 		}
 		if (StringUtils.isBlank(experienceStoryDTO.getDescription())) {
+			logger.info("Please enter discription of your journey.");
 			throw new UnprocessableEntityException("Please enter discription of your journey.");
 		}
+		if (experienceStoryDTO.getTitle().length()>100) {
+			logger.info("Title length exceeded.");
+			throw new UnprocessableEntityException("Title length exceeded.");
+		}
+//		if (experienceStoryDTO.getDescription().length()<50) {
+//			logger.info("Title length exceeded.");
+//			throw new UnprocessableEntityException("Title length exceeded.");
+//		}
 		logger.info("Completed TravelStoryServce::save");
 	}
 

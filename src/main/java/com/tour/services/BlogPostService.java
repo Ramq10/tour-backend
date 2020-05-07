@@ -149,13 +149,24 @@ public class BlogPostService {
 	private void validate(BlogPostDTO blogPostDTO) {
 		logger.info("Inside BlogPostService::validate");
 		if (StringUtils.isBlank(blogPostDTO.getTitle())) {
+			logger.info("Invalid Title.");
 			throw new UnprocessableEntityException("Invalid Title.");
 		}
 		if (blogPostDTO.getBlogGenre() == null) {
+			logger.info("Please select Blog Genre.");
 			throw new UnprocessableEntityException("Please select Blog Genre.");
 		}
 		if (StringUtils.isBlank(blogPostDTO.getUrl())) {
-			throw new UnprocessableEntityException("Invalid Blog Post.");
+			logger.info("Invalid Blog URL.");
+			throw new UnprocessableEntityException("Invalid Blog URL.");
+		}
+		if (blogPostDTO.getTitle().length()>100) {
+			logger.info("Title limit exceeded.");
+			throw new UnprocessableEntityException("Title limit exceeded.");
+		}
+		if (blogPostDTO.getUrl().length()>300) {
+			logger.info("URL limit exceeded.");
+			throw new UnprocessableEntityException("URL limit exceeded.");
 		}
 		logger.info("Complete BlogPostService::validate");
 	}
