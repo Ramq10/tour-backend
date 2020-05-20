@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tour.entity.HashTag;
 import com.tour.entity.dto.HashTagsDTO;
 import com.tour.entity.dto.TravelStoryDTO;
 import com.tour.services.TravelStoryService;
@@ -61,5 +60,11 @@ public class TravelStoryController {
 	public List<TravelStoryDTO> getAllStoryTags(@PathVariable Long id) {
 		return experienceStoryService.getStoryByTag(id);
 	}
+	
+	@GetMapping("/logged-in-user/travel-story")
+	public List<TravelStoryDTO> getAllStoryByLoggedInUser() {
+		return experienceStoryService.getAllStoryByLoggedInUser();
+	}
+
 	
 }

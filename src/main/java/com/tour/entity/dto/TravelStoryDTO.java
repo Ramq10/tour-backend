@@ -3,6 +3,7 @@
  */
 package com.tour.entity.dto;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -29,13 +30,19 @@ public class TravelStoryDTO {
 	private long commentCount;
 	private LocalDate createDate;
 	private List<HashTagsDTO> tags;
+	
 	private List<CommentDTO> comments;
 	private Long view;
 
 	public TravelStoryDTO(TravelStory travelStory) {
 		this.id = travelStory.getId();
+		try {
+//			this.title = new String(travelStory.getTitle().getBytes("ISO-8859-1"), "UTF-8");
+			this.description = new String(travelStory.getDescription().getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		this.title = travelStory.getTitle();
-		this.description = travelStory.getDescription();
 		this.fileId = (travelStory.getFiles() != null && travelStory.getFiles().size() != 0
 				? travelStory.getFiles().get(0).getId()
 				: null);
@@ -54,20 +61,15 @@ public class TravelStoryDTO {
 
 	public TravelStoryDTO(TravelStory travelStory, String a) {
 		this.id = travelStory.getId();
-		this.title = travelStory.getTitle();
-		this.description = travelStory.getDescription();
-		this.userId = travelStory.getUser() != null ? travelStory.getUser().getId() : null;
-		this.fileId = (travelStory.getFiles() != null && travelStory.getFiles().size() != 0
-				? travelStory.getFiles().get(0).getId()
-				: null);
-		this.files = travelStory.getFiles();
+		try {
+			this.title = new String(travelStory.getTitle().getBytes("ISO-8859-1"), "UTF-8");
+			this.description = new String(travelStory.getDescription().getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		this.likeCount = travelStory.getLikedBy() != null ? travelStory.getLikedBy().size() : 0;
-		this.likedBy = travelStory.getLikedBy() != null
-				? travelStory.getLikedBy().stream().map(t -> new UserDTO(t, "")).collect(Collectors.toSet())
-				: null;
 		this.setCreateDate(travelStory.getCreateDate());
 		this.view = travelStory.getView();
-		this.setTags(travelStory.getTags().stream().map(m -> new HashTagsDTO(m)).collect(Collectors.toList()));
 	}
 
 	/**

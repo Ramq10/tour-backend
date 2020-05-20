@@ -5,6 +5,7 @@ package com.tour.services;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import com.tour.entity.State;
 import com.tour.entity.Subscriber;
 import com.tour.entity.User;
 import com.tour.entity.dto.UserDTO;
+import com.tour.enums.Hobby;
 import com.tour.exception.UnprocessableEntityException;
 import com.tour.repository.CountryRepository;
 import com.tour.repository.StateRepository;
@@ -64,23 +66,27 @@ public class UserService {
 		logger.info("Inside UserService::saveOrUpdate");
 		validate(userDTO);
 		User userFromDB = null;
-
-		File profilePhoto = new File();
+		ZoneId zoneid1 = ZoneId.of("Asia/Kolkata");  
+		File profilePhoto = null;
 		if (userDTO.getProfilePhotoId() != null) {
 			profilePhoto = validateProfilePhoto(userDTO.getProfilePhotoId());
 		}
 		if (userDTO.getId() == null) {
 			validateEmail(userDTO.getEmail());
 			userFromDB = new User(userDTO);
-			userFromDB.setCreateDate(LocalDate.now());
+			userFromDB.setCreateDate(LocalDate.now(zoneid1));
+			if (StringUtils.isBlank(userDTO.getPassword())) {
+				throw new UnprocessableEntityException("Please enter valid Password.");
+			}
 			userFromDB.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-			userFromDB.setPasswordUpdateDate(LocalDateTime.now());
+			userFromDB.setPasswordUpdateDate(LocalDateTime.now(zoneid1));
 		} else {
 			userFromDB = getUserById(userDTO.getId());
-			userFromDB.setModifiedDate(LocalDate.now());
+			userFromDB.setModifiedDate(LocalDate.now(zoneid1));
 			userFromDB.setName(userDTO.getName());
 			userFromDB.setMobileNumber(userDTO.getMobileNumber());
-			userFromDB.setEmail(userDTO.getEmail());
+			userFromDB.setHobby(Hobby.getEnum(userDTO.getHobby()));
+//			userFromDB.setEmail(userDTO.getEmail());
 		}
 		userFromDB.setProfilePhoto(profilePhoto);
 		setAddress(userFromDB, userDTO);
@@ -210,9 +216,6 @@ public class UserService {
 		if (Objects.isNull(user.getCountryId())) {
 			throw new UnprocessableEntityException("Please enter valid Country.");
 		}
-		if (StringUtils.isBlank(user.getPassword())) {
-			throw new UnprocessableEntityException("Please enter valid Password.");
-		}
 		logger.info("Completed UserService::validate");
 	}
 
@@ -264,12 +267,28 @@ public class UserService {
 	}
 
 	public void forgetPasswordRequest(String userEmail) {
+		logger.info("Inside UserService::forgetPasswordRequest");
 		User user = getUserByEmail(userEmail);
 		if(user == null) {
 			logger.info("Email does not exist.");
 			throw new UnprocessableEntityException("Email does not exist.");
 		}
 		emailSender.sendForgetPasswordMail(user.getEmail(), "Reset Password");
+		logger.info("Competed UserService::forgetPasswordRequest");
+	}
+
+	public void resetPassword(String email, String password) {
+		logger.info("Inside UserService::resetPassword");
+		User user = getUserByEmail(email);
+		if(user == null) {
+			logger.info("Email does not exist.");
+			throw new UnprocessableEntityException("Email does not exist.");
+		}
+		user.setPassword(passwordEncoder.encode(password));
+		ZoneId zoneid1 = ZoneId.of("Asia/Kolkata");  
+		user.setPasswordUpdateDate(LocalDateTime.now(zoneid1));
+		userRepository.save(user);
+		logger.info("Competed UserService::resetPassword");
 	}
 
 }

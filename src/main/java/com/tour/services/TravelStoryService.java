@@ -3,7 +3,9 @@
  */
 package com.tour.services;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +53,7 @@ public class TravelStoryService {
 	public TravelStoryDTO save(TravelStoryDTO travelStoryDTO) {
 		logger.info("Inside TravelStoryServce::save");
 		validate(travelStoryDTO);
+		ZoneId zoneid1 = ZoneId.of("Asia/Kolkata");  
 		User user = userService.getLoggedInUser();
 		List<File> storyFiles = new ArrayList<File>();
 		List<HashTag> tags = new ArrayList<HashTag>();
@@ -60,16 +63,40 @@ public class TravelStoryService {
 		if (travelStoryDTO.getTags() != null) {
 			tags = validateTags(travelStoryDTO.getTags());
 		}
-		TravelStory experienceStory = new TravelStory(travelStoryDTO);
-		experienceStory.setUser(user);
-		experienceStory.setFiles(storyFiles);
-		experienceStory.setTags(tags);
-		experienceStory.setCreateDate(LocalDate.now());
-		experienceStory.setView(0l);
-		TravelStoryDTO storyDTO = new TravelStoryDTO(travelStoryRepository.save(experienceStory), "");
+		TravelStory experienceStoryFromDB = null;
+		if(travelStoryDTO.getId() == null){
+			experienceStoryFromDB = new TravelStory(travelStoryDTO);
+			experienceStoryFromDB.setView(0l);
+			experienceStoryFromDB.setCreateDate(LocalDate.now(zoneid1));
+
+		} else {
+			experienceStoryFromDB = findById(travelStoryDTO.getId());
+			validateUser(experienceStoryFromDB.getUser());
+			experienceStoryFromDB.setModifiedDate(LocalDate.now(zoneid1));
+			try {
+				experienceStoryFromDB.setTitle(new String(travelStoryDTO.getTitle().getBytes("UTF-8"), "ISO-8859-1"));
+				experienceStoryFromDB.setDescription(new String(travelStoryDTO.getTitle().getBytes("UTF-8"), "ISO-8859-1"));
+				} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		experienceStoryFromDB.setUser(user);
+		experienceStoryFromDB.setFiles(storyFiles);
+		experienceStoryFromDB.setTags(tags);
+		
+		TravelStoryDTO storyDTO = new TravelStoryDTO(travelStoryRepository.save(experienceStoryFromDB));
 		logger.info("Completed TravelStoryServce::save");
 		return storyDTO;
 	}
+	
+	private void validateUser(User user) {
+		if (user.getId() != userService.getLoggedInUser().getId()) {
+			throw new UnprocessableEntityException("You are not allowed to edit this Story.");
+		}
+
+	}
+
 
 	/**
 	 * @param tags
@@ -132,7 +159,7 @@ public class TravelStoryService {
 		logger.info("Inside TravelStoryServce::findById");
 		Optional<TravelStory> experienceStory = travelStoryRepository.findById(id);
 		if (experienceStory == null || !experienceStory.isPresent()) {
-			throw new UnprocessableEntityException("Invalid ExperienceStory.");
+			throw new UnprocessableEntityException("Invalid TravelStory.");
 		}
 		logger.info("Completed TravelStoryServce::findById");
 		return experienceStory.get();
@@ -193,6 +220,16 @@ public class TravelStoryService {
 			logger.info("Invalid HashTag. id = {}",tagId);
 			throw new UnprocessableEntityException("Invalid HashTag.");
 		}
+	}
+
+	public List<TravelStoryDTO> getAllStoryByLoggedInUser() {
+		logger.info("Inside travelStoryService::getAllStoryByLoggedInUser");
+		User user = userService.getLoggedInUser();
+		if(!user.getStory().isEmpty()){
+			return user.getStory().stream().map(n->new TravelStoryDTO(n,"")).collect(Collectors.toList());
+		}
+		logger.info("Completed travelStoryService::getAllStoryByLoggedInUser");
+		return null;
 	}
 
 }

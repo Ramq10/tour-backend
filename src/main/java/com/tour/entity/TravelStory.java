@@ -3,6 +3,7 @@
  */
 package com.tour.entity;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
 
@@ -65,8 +66,12 @@ public class TravelStory extends BaseEntity {
 
 	public TravelStory(TravelStoryDTO experienceStoryDTO) {
 		this.id = experienceStoryDTO.getId();
-		this.title = experienceStoryDTO.getTitle();
-		this.description = experienceStoryDTO.getDescription();
+		try {
+			this.title = new String(experienceStoryDTO.getTitle().getBytes("UTF-8"), "ISO-8859-1");
+			this.description = new String(experienceStoryDTO.getDescription().getBytes("UTF-8"), "ISO-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

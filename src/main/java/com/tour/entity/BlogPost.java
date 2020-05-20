@@ -3,6 +3,7 @@
  */
 package com.tour.entity;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -69,8 +70,12 @@ public class BlogPost extends BaseEntity {
 
 	public BlogPost(BlogPostDTO blogPostDTO) {
 		this.id = blogPostDTO.getId();
-		this.title = blogPostDTO.getTitle();
-		this.summery = blogPostDTO.getSummery();
+		try {
+			this.title = new String(blogPostDTO.getTitle().getBytes("UTF-8"), "ISO-8859-1");
+			this.summery = new String(blogPostDTO.getSummery().getBytes("UTF-8"), "ISO-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		this.blogGenre = BlogGenres.getEnum(blogPostDTO.getBlogGenre());
 		this.vBlog = blogPostDTO.isvBlog();
 	}

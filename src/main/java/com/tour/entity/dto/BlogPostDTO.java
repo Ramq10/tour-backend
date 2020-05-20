@@ -3,6 +3,7 @@
  */
 package com.tour.entity.dto;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,6 +31,12 @@ public class BlogPostDTO {
 
 	public BlogPostDTO(BlogPost blogPost) {
 		this.id = blogPost.getId();
+		try {
+			this.title = new String(blogPost.getTitle().getBytes("ISO-8859-1"), "UTF-8");
+			this.summery = new String(blogPost.getSummery().getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		this.url = blogPost.getUrl();
 		this.blogImageId = blogPost.getBlogImage() != null ? blogPost.getBlogImage().getId() : null;
 		this.blogGenre = blogPost.getBlogGenre() != null ? blogPost.getBlogGenre().getGenre() : null;
@@ -42,6 +49,22 @@ public class BlogPostDTO {
 		this.view = blogPost.getView();
 //		this.setTags(blogPost.getTags());
 	}
+	
+	public BlogPostDTO(BlogPost blogPost, String s) {
+		this.id = blogPost.getId();
+		try {
+			this.title = new String(blogPost.getTitle().getBytes("ISO-8859-1"), "UTF-8");
+			this.summery = new String(blogPost.getSummery().getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		this.title = blogPost.getTitle();
+		this.summery = blogPost.getSummery();
+		this.vBlog = blogPost.getvBlog();
+		this.postedDate = blogPost.getCreateDate();
+		this.view = blogPost.getView();
+	}
+
 
 	public BlogPostDTO() {
 	}

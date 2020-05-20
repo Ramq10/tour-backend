@@ -4,6 +4,7 @@
 package com.tour.services;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,8 +48,9 @@ public class BlogPostService {
 	public void saveOrUpdate(BlogPostDTO blogPostDTO) {
 		logger.info("Inside BlogPostService::saveOrUpdate");
 		validate(blogPostDTO);
+		ZoneId zoneid1 = ZoneId.of("Asia/Kolkata");
 		BlogPost blogPostFromDB = null;
-//		List<HashTag> tags = new ArrayList<HashTag>();
+		// List<HashTag> tags = new ArrayList<HashTag>();
 		File blogImage = new File();
 		if (blogPostDTO.getBlogImageId() != null) {
 			blogImage = validateBlogImage(blogPostDTO.getBlogImageId());
@@ -56,35 +58,41 @@ public class BlogPostService {
 		if (blogPostDTO.getId() == null) {
 			vaidateUrl(blogPostDTO.getUrl());
 			blogPostFromDB = new BlogPost(blogPostDTO);
-			blogPostFromDB.setUrl(blogPostDTO.getUrl());
-			blogPostFromDB.setCreateDate(LocalDate.now());
+			blogPostFromDB.setCreateDate(LocalDate.now(zoneid1));
+			blogPostFromDB.setView(0L);
 		} else {
 			blogPostFromDB = getBlogById(blogPostDTO.getId());
 			validateUser(blogPostFromDB.getBlogger());
-			blogPostFromDB.setModifiedDate(LocalDate.now());
+			blogPostFromDB.setModifiedDate(LocalDate.now(zoneid1));
 		}
-//		if (blogPostDTO.getTags() != null) {
-//			tags = validateTags(blogPostDTO.getTags());
-//		}
-//		blogPostFromDB.setTags(tags);
+		// if (blogPostDTO.getTags() != null) {
+		// tags = validateTags(blogPostDTO.getTags());
+		// }
+		// blogPostFromDB.setTags(tags);
+		blogPostFromDB.setUrl(blogPostDTO.getUrl());
+		if (!blogPostFromDB.getUrl().contains("http")) {
+			blogPostFromDB.setUrl("http://" + blogPostFromDB.getUrl());
+		}
 		blogPostFromDB.setBlogger(authenticationService.getAuthenticatedUser());
 		blogPostFromDB.setBlogImage(blogImage);
-		blogPostFromDB.setView(0L);
+
 		logger.info("Completed BlogPostService::saveOrUpdate");
 		blogPostRepository.save(blogPostFromDB);
 	}
 
-//	private List<HashTag> validateTags(List<HashTag> tags) {
-//		List<HashTag> hashTags = new ArrayList<HashTag>();
-//		tags.stream().forEach(f -> {
-//			hashTags.add(hashTagRepository.findById(f.getId()).get());
-//		});
-//		return hashTags;
-//	}
+	// private List<HashTag> validateTags(List<HashTag> tags) {
+	// List<HashTag> hashTags = new ArrayList<HashTag>();
+	// tags.stream().forEach(f -> {
+	// hashTags.add(hashTagRepository.findById(f.getId()).get());
+	// });
+	// return hashTags;
+	// }
 
 	private void validateUser(User blogger) {
-		if (blogger.getId() != authenticationService.getAuthenticatedUser().getId()) {
-			throw new UnprocessableEntityException("You are not allowed to edit this blog.");
+		if (blogger.getId() != authenticationService.getAuthenticatedUser()
+				.getId()) {
+			throw new UnprocessableEntityException(
+					"You are not allowed to edit this blog.");
 		}
 
 	}
@@ -93,7 +101,7 @@ public class BlogPostService {
 		logger.info("Inside BlogPostService::vaidateUrl");
 		BlogPost blogPost = blogPostRepository.findByUrl(url);
 		if (!Objects.isNull(blogPost)) {
-			throw new UnprocessableEntityException("Invalid BlogPost URL.");
+			throw new UnprocessableEntityException("Blog URL already exist.");
 		}
 		logger.info("Completed BlogPostService::vaidateUrl");
 	}
@@ -108,9 +116,9 @@ public class BlogPostService {
 		if (blogPost == null || !blogPost.isPresent()) {
 			throw new UnprocessableEntityException("Invalid BlogPost.");
 		}
-//		Long view = blogPost.get().getView() + 1;
-//		blogPost.get().setView(view);
-//		blogPostRepository.save(blogPost.get());
+		// Long view = blogPost.get().getView() + 1;
+		// blogPost.get().setView(view);
+		// blogPostRepository.save(blogPost.get());
 		logger.info("Completed BlogPostService::getBlogById");
 		return blogPost.get();
 	}
@@ -160,11 +168,11 @@ public class BlogPostService {
 			logger.info("Invalid Blog URL.");
 			throw new UnprocessableEntityException("Invalid Blog URL.");
 		}
-		if (blogPostDTO.getTitle().length()>100) {
+		if (blogPostDTO.getTitle().length() > 100) {
 			logger.info("Title limit exceeded.");
 			throw new UnprocessableEntityException("Title limit exceeded.");
 		}
-		if (blogPostDTO.getUrl().length()>300) {
+		if (blogPostDTO.getUrl().length() > 300) {
 			logger.info("URL limit exceeded.");
 			throw new UnprocessableEntityException("URL limit exceeded.");
 		}
@@ -177,34 +185,40 @@ public class BlogPostService {
 	public List<BlogPostDTO> getAllBlogPost(String sortedBy) {
 		switch (sortedBy) {
 		case "date":
-			return blogPostRepository.findByvBlogOrderByCreateDateDesc(false).stream().map(m -> {
-				return new BlogPostDTO(m);
-			}).collect(Collectors.toList());
+			return blogPostRepository.findByvBlogOrderByCreateDateDesc(false)
+					.stream().map(m -> {
+						return new BlogPostDTO(m);
+					}).collect(Collectors.toList());
 		case "view":
-			return blogPostRepository.findByvBlogOrderByViewAsc(false).stream().map(m -> {
-				return new BlogPostDTO(m);
-			}).collect(Collectors.toList());
+			return blogPostRepository.findByvBlogOrderByViewAsc(false).stream()
+					.map(m -> {
+						return new BlogPostDTO(m);
+					}).collect(Collectors.toList());
 		default:
-			return blogPostRepository.findByvBlogOrderByCreateDateDesc(false).stream().map(m -> {
-				return new BlogPostDTO(m);
-			}).collect(Collectors.toList());
+			return blogPostRepository.findByvBlogOrderByCreateDateDesc(false)
+					.stream().map(m -> {
+						return new BlogPostDTO(m);
+					}).collect(Collectors.toList());
 		}
 	}
 
 	public List<BlogPostDTO> getAllVideoBlogPost(String sortedBy) {
 		switch (sortedBy) {
 		case "date":
-			return blogPostRepository.findByvBlogOrderByCreateDateDesc(true).stream().map(m -> {
-				return new BlogPostDTO(m);
-			}).collect(Collectors.toList());
+			return blogPostRepository.findByvBlogOrderByCreateDateDesc(true)
+					.stream().map(m -> {
+						return new BlogPostDTO(m);
+					}).collect(Collectors.toList());
 		case "view":
-			return blogPostRepository.findByvBlogOrderByViewAsc(true).stream().map(m -> {
-				return new BlogPostDTO(m);
-			}).collect(Collectors.toList());
+			return blogPostRepository.findByvBlogOrderByViewAsc(true).stream()
+					.map(m -> {
+						return new BlogPostDTO(m);
+					}).collect(Collectors.toList());
 		default:
-			return blogPostRepository.findByvBlogOrderByCreateDateDesc(true).stream().map(m -> {
-				return new BlogPostDTO(m);
-			}).collect(Collectors.toList());
+			return blogPostRepository.findByvBlogOrderByCreateDateDesc(true)
+					.stream().map(m -> {
+						return new BlogPostDTO(m);
+					}).collect(Collectors.toList());
 		}
 	}
 
@@ -214,26 +228,41 @@ public class BlogPostService {
 
 	public List<BlogPostDTO> findAllByBlogGenre(String value) {
 		BlogGenres blogGenre = BlogGenres.getEnum(value);
-		return blogPostRepository.findByvBlogAndBlogGenreOrderByCreateDateDesc(false, blogGenre).stream().map(b -> new BlogPostDTO(b))
+		return blogPostRepository
+				.findByvBlogAndBlogGenreOrderByCreateDateDesc(false, blogGenre)
+				.stream().map(b -> new BlogPostDTO(b))
 				.collect(Collectors.toList());
 	}
 
 	public List<BlogPostDTO> findVlogByBlogGenre(String value) {
 		BlogGenres blogGenre = BlogGenres.getEnum(value);
-		return blogPostRepository.findByvBlogAndBlogGenreOrderByCreateDateDesc(true, blogGenre).stream().map(b -> new BlogPostDTO(b))
+		return blogPostRepository
+				.findByvBlogAndBlogGenreOrderByCreateDateDesc(true, blogGenre)
+				.stream().map(b -> new BlogPostDTO(b))
 				.collect(Collectors.toList());
 
 	}
 
-//	public List<BlogPostDTO> getBlogPostByTag(Long tagId) {
-//		HashTag hashTag = hashTagRepository.findById(tagId).get();
-//		if (hashTag != null) {
-//			return hashTag.getBlogPost().stream().map(m -> {
-//				return new BlogPostDTO(m);
-//			}).collect(Collectors.toList());
-//		} else {
-//			logger.info("Invalid HashTag. id = {}", tagId);
-//			throw new UnprocessableEntityException("Invalid HashTag.");
-//		}
-//	}
+	public List<BlogPostDTO> getAllBlogByLoggedInUser() {
+		logger.info("Inside BlogPostService::getAllBlogByLoggedInUser");
+		User user = authenticationService.getAuthenticatedUser();
+		if (!user.getStory().isEmpty()) {
+			return user.getBlogPost().stream().map(v->new BlogPostDTO(v,""))
+					.collect(Collectors.toList());
+		}
+		logger.info("Completed BlogPostService::getAllBlogByLoggedInUser");
+		return null;
+	}
+
+	// public List<BlogPostDTO> getBlogPostByTag(Long tagId) {
+	// HashTag hashTag = hashTagRepository.findById(tagId).get();
+	// if (hashTag != null) {
+	// return hashTag.getBlogPost().stream().map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList());
+	// } else {
+	// logger.info("Invalid HashTag. id = {}", tagId);
+	// throw new UnprocessableEntityException("Invalid HashTag.");
+	// }
+	// }
 }

@@ -39,15 +39,17 @@ public class BlogPostController {
 	}
 
 	@GetMapping("/all-blog")
-	public List<BlogPostDTO> getAllBlog(@RequestParam(required = false) String sortedBy) {
+	public List<BlogPostDTO> getAllBlog(
+			@RequestParam(required = false) String sortedBy) {
 		return blogPostService.getAllBlogPost(sortedBy);
 	}
 
 	@GetMapping("/v-blog")
-	public List<BlogPostDTO> getAllVideoBlog(@RequestParam(required = false) String sortedBy) {
+	public List<BlogPostDTO> getAllVideoBlog(
+			@RequestParam(required = false) String sortedBy) {
 		return blogPostService.getAllVideoBlogPost(sortedBy);
 	}
- 
+
 	@GetMapping("/blog-genre")
 	public List<String> getBlogGenre() {
 		return blogPostService.getAllBlog();
@@ -61,6 +63,11 @@ public class BlogPostController {
 	@GetMapping("/v-blog/genre/{genre}")
 	public List<BlogPostDTO> getAllVlogByGenre(@PathVariable String genre) {
 		return blogPostService.findVlogByBlogGenre(genre);
+	}
+
+	@GetMapping("/logged-in-user/blog-post")
+	public List<BlogPostDTO> getAllBlogByLoggedInUser() {
+		return blogPostService.getAllBlogByLoggedInUser();
 	}
 
 }

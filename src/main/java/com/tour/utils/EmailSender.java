@@ -48,10 +48,12 @@ public class EmailSender {
 	 * @param text
 	 */
 	public void sendWelcomeMail(String name, String to, String subject, String text) {
+		logger.info("Inside EmailSender:sendWecomeMail");
 		MimeMessage message = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper;
 
 		try {
+			logger.info("Inside try block");
 			helper = new MimeMessageHelper(message, true);
 			Context context = new Context();
 
@@ -64,10 +66,11 @@ public class EmailSender {
 			helper.setSubject(subject);
 			helper.setText(htmlContent, true);
 			javaMailSender.send(message);
+			logger.info("Sucessfully executed try block");
 		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
-
+		logger.info("Completed EmailSender:sendWecomeMail");
 	}
 
 	
@@ -80,7 +83,7 @@ public class EmailSender {
 			logger.info("Inside try block");
 			helper = new MimeMessageHelper(message, true);
 			Context context = new Context();
-			final String url = "roverstrail.com";
+			final String url = "roverstrail.com/reset-password/"+to;
 			context.setVariable("url", url);
 			String htmlContent = templateEngine.process("password-recovery-email.html", context);
 			helper.setTo(to);

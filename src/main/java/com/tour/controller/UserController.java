@@ -55,5 +55,10 @@ public class UserController {
 	public void forgetPasswordRequest(@PathVariable String mail) {
 		userService.forgetPasswordRequest(mail);
 	}
-
+	
+	@PostMapping("/reset-password")
+	public void resetPassword(@RequestParam String email, @RequestParam String password) {
+		userService.resetPassword(email, password);
+	}
+	
 }

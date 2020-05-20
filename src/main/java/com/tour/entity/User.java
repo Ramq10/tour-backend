@@ -1,6 +1,7 @@
 package com.tour.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -33,26 +35,32 @@ public class User extends BaseEntity {
 
 	@Column(name = "name")
 	private String name;
-	
+
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "profile_id")
 	private File profilePhoto;
-	
+
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
+	@OneToMany(mappedBy = "user")
+	private List<TravelStory> story;
+
+	@OneToMany(mappedBy = "blogger")
+	private List<BlogPost> blogPost;
+
 	@Column(name = "blogger")
 	private boolean blogger;
-	
+
 	@Column(name = "email")
 	private String email;
-	
+
 	@Column(name = "mobile_number")
 	private String mobileNumber;
 
-//	@Enumerated(EnumType.STRING)
-//	@Column(name = "blog_genre")
-//	private BlogGenres blogGenre;
+	// @Enumerated(EnumType.STRING)
+	// @Column(name = "blog_genre")
+	// private BlogGenres blogGenre;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "hobby")
@@ -180,6 +188,22 @@ public class User extends BaseEntity {
 
 	public void setProfilePhoto(File profilePhoto) {
 		this.profilePhoto = profilePhoto;
+	}
+
+	public List<TravelStory> getStory() {
+		return story;
+	}
+
+	public void setStory(List<TravelStory> story) {
+		this.story = story;
+	}
+
+	public List<BlogPost> getBlogPost() {
+		return blogPost;
+	}
+
+	public void setBlogPost(List<BlogPost> blogPost) {
+		this.blogPost = blogPost;
 	}
 
 }

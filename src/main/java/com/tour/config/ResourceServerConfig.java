@@ -39,7 +39,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 		logger.info("Inside ResourceServerConfig::configure(HttpSecurity http)");
 		http.csrf().disable().authorizeRequests().antMatchers("/**/oauth/token").permitAll()
 				.antMatchers(HttpMethod.OPTIONS, "/**/oauth/token").permitAll().antMatchers("/**/contact-us/")
-				.permitAll().antMatchers("/**/forget-password/{mail}").permitAll().antMatchers("/**/set-password/")
+				.permitAll().antMatchers("/**/forget-password/{mail}").permitAll().antMatchers("/**/reset-password/**")
 				.permitAll().antMatchers("/**/user/").permitAll().antMatchers("/**/all-story/").permitAll()
 				.antMatchers("/**/all-blog/**").permitAll().antMatchers("/**/file/upload/").permitAll()
 				.antMatchers("/**/country/{id}").permitAll().antMatchers("/**/blog-genre/").permitAll()
