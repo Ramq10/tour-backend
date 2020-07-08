@@ -5,6 +5,7 @@ com\tour\repository\UserRepository.class
 com\tour\controller\CommentController.class
 com\tour\repository\CityRepository.class
 com\tour\utils\EmailSender.class
+com\tour\services\BlogPostService$1.class
 com\tour\entity\File.class
 com\tour\controller\TravelStoryController.class
 com\tour\config\TourUserDetails.class
@@ -36,6 +37,7 @@ com\tour\repository\ContactUsRepository.class
 com\tour\entity\dto\CommentDTO.class
 com\tour\exception\GlobalException.class
 com\tour\config\TokenStore.class
+com\tour\entity\dto\SearchColumnDTO.class
 com\tour\entity\State.class
 com\tour\services\FileService.class
 com\tour\entity\TravelStory.class
@@ -43,6 +45,7 @@ com\tour\enums\BlogGenres.class
 com\tour\exception\UnprocessableEntityException.class
 com\tour\repository\HashTagRepository.class
 com\tour\config\AuthorizationServerConfiguration.class
+com\tour\repository\SocialSiteLinkRepository.class
 com\tour\services\AuthenticationService.class
 com\tour\entity\dto\HashTagsDTO.class
 com\tour\exception\UserDeletedException.class
@@ -64,3 +67,4 @@ com\tour\config\SimpleCORSFilter.class
 com\tour\controller\UserController.class
 com\tour\services\UserService.class
 com\tour\entity\dto\BlogPostDTO.class
+com\tour\entity\SocialSiteLink.class

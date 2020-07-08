@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tour.entity.dto.BlogPostDTO;
+import com.tour.entity.dto.SearchColumnDTO;
 import com.tour.services.BlogPostService;
 
 /**
@@ -38,17 +39,18 @@ public class BlogPostController {
 		return blogPostService.getBlogDTOById(id);
 	}
 
-	@GetMapping("/all-blog")
+	@PostMapping("/all-blog")
 	public List<BlogPostDTO> getAllBlog(
-			@RequestParam(required = false) String sortedBy) {
-		return blogPostService.getAllBlogPost(sortedBy);
-	}
+			@RequestParam(required = false) String searchBy, @RequestBody(required = false) SearchColumnDTO searchColumnDTO) {
+		return blogPostService.filterBlogPost(searchBy, searchColumnDTO);
 
-	@GetMapping("/v-blog")
-	public List<BlogPostDTO> getAllVideoBlog(
-			@RequestParam(required = false) String sortedBy) {
-		return blogPostService.getAllVideoBlogPost(sortedBy);
 	}
+	
+//	@GetMapping("/v-blog")
+//	public List<BlogPostDTO> getAllVideoBlog(
+//			@RequestParam(required = false) String sortedBy) {
+//		return blogPostService.getAllVideoBlogPost(sortedBy);
+//	}
 
 	@GetMapping("/blog-genre")
 	public List<String> getBlogGenre() {

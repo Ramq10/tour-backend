@@ -52,6 +52,7 @@ public class BlogPostDTO {
 	
 	public BlogPostDTO(BlogPost blogPost, String s) {
 		this.id = blogPost.getId();
+		this.url = blogPost.getUrl();
 		try {
 			this.title = new String(blogPost.getTitle().getBytes("ISO-8859-1"), "UTF-8");
 			this.summery = new String(blogPost.getSummery().getBytes("ISO-8859-1"), "UTF-8");

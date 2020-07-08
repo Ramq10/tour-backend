@@ -8,10 +8,12 @@ D:\tour-rest\src\main\java\com\tour\exception\BadRequestException.java
 D:\tour-rest\src\main\java\com\tour\config\TourTokenEnhancer.java
 D:\tour-rest\src\main\java\com\tour\entity\Subscriber.java
 D:\tour-rest\src\main\java\com\tour\repository\ContactUsRepository.java
+D:\tour-rest\src\main\java\com\tour\repository\SocialSiteLinkRepository.java
 D:\tour-rest\src\main\java\com\tour\enums\BlogGenres.java
 D:\tour-rest\src\main\java\com\tour\entity\dto\UserDTO.java
 D:\tour-rest\src\main\java\com\tour\config\SimpleCORSFilter.java
 D:\tour-rest\src\main\java\com\tour\enums\Hobby.java
+D:\tour-rest\src\main\java\com\tour\entity\SocialSiteLink.java
 D:\tour-rest\src\main\java\com\tour\repository\BlogPostRepository.java
 D:\tour-rest\src\main\java\com\tour\services\CommentService.java
 D:\tour-rest\src\main\java\com\tour\services\FileService.java
@@ -36,6 +38,7 @@ D:\tour-rest\src\main\java\com\tour\config\ThymeleafConfig.java
 D:\tour-rest\src\main\java\com\tour\controller\CommentController.java
 D:\tour-rest\src\main\java\com\tour\entity\City.java
 D:\tour-rest\src\main\java\com\tour\entity\HashTag.java
+D:\tour-rest\src\main\java\com\tour\entity\dto\SearchColumnDTO.java
 D:\tour-rest\src\main\java\com\tour\entity\ContactUs.java
 D:\tour-rest\src\main\java\com\tour\utils\EmailSender.java
 D:\tour-rest\src\main\java\com\tour\entity\BlogPost.java

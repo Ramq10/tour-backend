@@ -31,7 +31,7 @@ public interface TravelStoryRepository extends JpaRepository<TravelStory, Long> 
 	@Query("select t from TravelStory t order by  t.view desc")
 	public List<TravelStory> findAllByViewLimit();
 	
-	@Query("select t from TravelStory t order by t.createDate asc")
+	@Query("select t from TravelStory t order by t.createDate desc")
 	public List<TravelStory> findAllLimit();
 	
 //	public List<TravelStory> findByTags(List tags);

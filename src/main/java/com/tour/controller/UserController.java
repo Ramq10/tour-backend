@@ -3,6 +3,9 @@
  */
 package com.tour.controller;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tour.entity.ContactUs;
+import com.tour.entity.Subscriber;
 import com.tour.entity.dto.UserDTO;
 import com.tour.services.UserService;
 
@@ -61,4 +66,28 @@ public class UserController {
 		userService.resetPassword(email, password);
 	}
 	
+	@GetMapping("/portal-data")
+	public Map<String, Long> getPortalData() {
+		return userService.getPortalData();
+	}
+	
+	@GetMapping("/all-users")
+	public List<UserDTO> getAllUsers() {
+		return userService.getAllUsers();
+	}
+	
+	@GetMapping("/all-user")
+	public List<UserDTO> getAllUser() {
+		return userService.getAllUsers();
+	}
+	
+	@GetMapping("/all-subscriber")
+	public List<Subscriber> getAllSubscriber() {
+		return userService.getAllSubscriber();
+	}
+	
+	@GetMapping("/all-contactus-request")
+	public List<ContactUs> getAllContactUsRequest() {
+		return userService.getAllContactUsRequest();
+	}
 }

@@ -5,10 +5,13 @@ package com.tour.services;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -17,17 +20,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.tour.entity.ContactUs;
 import com.tour.entity.Country;
 import com.tour.entity.File;
+import com.tour.entity.SocialSiteLink;
 import com.tour.entity.State;
 import com.tour.entity.Subscriber;
 import com.tour.entity.User;
 import com.tour.entity.dto.UserDTO;
 import com.tour.enums.Hobby;
 import com.tour.exception.UnprocessableEntityException;
+import com.tour.repository.BlogPostRepository;
+import com.tour.repository.ContactUsRepository;
 import com.tour.repository.CountryRepository;
+import com.tour.repository.SocialSiteLinkRepository;
 import com.tour.repository.StateRepository;
 import com.tour.repository.SubscriberRepository;
+import com.tour.repository.TravelStoryRepository;
 import com.tour.repository.UserRepository;
 import com.tour.utils.CommonUtil;
 import com.tour.utils.EmailSender;
@@ -57,6 +66,14 @@ public class UserService {
 	private SubscriberRepository subscriberRepository;
 	@Autowired
 	private EmailSender emailSender;
+	@Autowired
+	private SocialSiteLinkRepository socialSiteLinkRepository;
+	@Autowired
+	private TravelStoryRepository travelStoryRepository;
+	@Autowired
+	private ContactUsRepository contactUsRepository;
+	@Autowired
+	private BlogPostRepository blogPostRepository;
 
 	/**
 	 * @param user
@@ -66,7 +83,6 @@ public class UserService {
 		logger.info("Inside UserService::saveOrUpdate");
 		validate(userDTO);
 		User userFromDB = null;
-		ZoneId zoneid1 = ZoneId.of("Asia/Kolkata");  
 		File profilePhoto = null;
 		if (userDTO.getProfilePhotoId() != null) {
 			profilePhoto = validateProfilePhoto(userDTO.getProfilePhotoId());
@@ -74,33 +90,54 @@ public class UserService {
 		if (userDTO.getId() == null) {
 			validateEmail(userDTO.getEmail());
 			userFromDB = new User(userDTO);
-			userFromDB.setCreateDate(LocalDate.now(zoneid1));
+			userFromDB.setCreateDate(LocalDate.now(ZoneOffset.UTC));
 			if (StringUtils.isBlank(userDTO.getPassword())) {
-				throw new UnprocessableEntityException("Please enter valid Password.");
+				throw new UnprocessableEntityException(
+						"Please enter valid Password.");
 			}
-			userFromDB.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-			userFromDB.setPasswordUpdateDate(LocalDateTime.now(zoneid1));
+			userFromDB
+					.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+			userFromDB.setPasswordUpdateDate(LocalDateTime.now(ZoneOffset.UTC));
 		} else {
 			userFromDB = getUserById(userDTO.getId());
-			userFromDB.setModifiedDate(LocalDate.now(zoneid1));
+			userFromDB.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
 			userFromDB.setName(userDTO.getName());
 			userFromDB.setMobileNumber(userDTO.getMobileNumber());
 			userFromDB.setHobby(Hobby.getEnum(userDTO.getHobby()));
-//			userFromDB.setEmail(userDTO.getEmail());
+		}
+		if (StringUtils.isNotBlank(userDTO.getInstaLink()) || StringUtils.isNotBlank(userDTO.getFbLink())){
+		validateAndSaveSocialLink(userFromDB, userDTO);
 		}
 		userFromDB.setProfilePhoto(profilePhoto);
 		setAddress(userFromDB, userDTO);
 		logger.info("Completed UserService::saveOrUpdate");
-//		return new UserDTO(userRepository.save(userFromDB));
 		return saveUser(userFromDB);
+	}
+
+	private void validateAndSaveSocialLink(User userFromDB, UserDTO userDTO) {
+		logger.info("Inside UserService::validateAndSaveSocialLink");
+		SocialSiteLink socialSiteLink = null ;
+		if (userDTO.getSocialSiteLinkId() != null) {
+			socialSiteLink = socialSiteLinkRepository.findById(
+					userDTO.getSocialSiteLinkId()).get();
+			socialSiteLink.setInstaLink(StringUtils.isNotBlank(userDTO.getInstaLink()) ? userDTO.getInstaLink() : socialSiteLink.getInstaLink());
+			socialSiteLink.setFbLink(StringUtils.isNotBlank(userDTO.getFbLink()) ? userDTO.getFbLink() : socialSiteLink.getFbLink());
+			socialSiteLink.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
+		} else {
+			socialSiteLink = new SocialSiteLink(null,userDTO.getFbLink(),userDTO.getInstaLink());
+			socialSiteLink.setCreateDate(LocalDate.now(ZoneOffset.UTC));
+		}
+		userFromDB.setSocialSiteLink(socialSiteLink);
+		logger.info("Completed UserService::validateAndSaveSocialLink");
 	}
 
 	private UserDTO saveUser(User userFromDB) {
 		logger.info("Inside UserService::saveUser");
 		UserDTO user = new UserDTO(userRepository.save(userFromDB));
 		Runnable mailThread = () -> {
-			emailSender.sendWelcomeMail(user.getName(), user.getEmail(), "Welcome To Roverstrail",
-					"User " + user.getEmail() + " has successfully registered with RoversTrail.");
+			emailSender.sendWelcomeMail(user.getName(), user.getEmail(),
+					"Welcome To Roverstrail", "User " + user.getEmail()
+							+ " has successfully registered with RoversTrail.");
 		};
 		new Thread(mailThread).start();
 		logger.info("Completed UserService::saveUser");
@@ -162,7 +199,8 @@ public class UserService {
 			}
 			List<State> stateList = country.getState();
 			if (!stateList.contains(state)) {
-				throw new UnprocessableEntityException("State does not belong to this Country.");
+				throw new UnprocessableEntityException(
+						"State does not belong to this Country.");
 			}
 			userFromDB.setState(state);
 		}
@@ -199,13 +237,16 @@ public class UserService {
 	 */
 	private void validate(UserDTO user) {
 		logger.info("Inside UserService::validate");
-		if (StringUtils.isBlank(user.getName()) || !CommonUtil.isNameValid(user.getName())
+		if (StringUtils.isBlank(user.getName())
+				|| !CommonUtil.isNameValid(user.getName())
 				|| user.getName().length() > 30) {
 			throw new UnprocessableEntityException("Please enter a valid Name.");
 		}
-		if (StringUtils.isBlank(user.getEmail()) || !CommonUtil.isEmailValid(user.getEmail())
+		if (StringUtils.isBlank(user.getEmail())
+				|| !CommonUtil.isEmailValid(user.getEmail())
 				|| user.getEmail().length() > 65) {
-			throw new UnprocessableEntityException("Please enter a valid email.");
+			throw new UnprocessableEntityException(
+					"Please enter a valid email.");
 		}
 		if (StringUtils.isBlank(user.getHobby())) {
 			throw new UnprocessableEntityException("Please enter valid Hobby.");
@@ -214,7 +255,8 @@ public class UserService {
 			throw new UnprocessableEntityException("Please enter valid Gender.");
 		}
 		if (Objects.isNull(user.getCountryId())) {
-			throw new UnprocessableEntityException("Please enter valid Country.");
+			throw new UnprocessableEntityException(
+					"Please enter valid Country.");
 		}
 		logger.info("Completed UserService::validate");
 	}
@@ -269,7 +311,7 @@ public class UserService {
 	public void forgetPasswordRequest(String userEmail) {
 		logger.info("Inside UserService::forgetPasswordRequest");
 		User user = getUserByEmail(userEmail);
-		if(user == null) {
+		if (user == null) {
 			logger.info("Email does not exist.");
 			throw new UnprocessableEntityException("Email does not exist.");
 		}
@@ -280,15 +322,49 @@ public class UserService {
 	public void resetPassword(String email, String password) {
 		logger.info("Inside UserService::resetPassword");
 		User user = getUserByEmail(email);
-		if(user == null) {
+		if (user == null) {
 			logger.info("Email does not exist.");
 			throw new UnprocessableEntityException("Email does not exist.");
 		}
 		user.setPassword(passwordEncoder.encode(password));
-		ZoneId zoneid1 = ZoneId.of("Asia/Kolkata");  
-		user.setPasswordUpdateDate(LocalDateTime.now(zoneid1));
+		user.setPasswordUpdateDate(LocalDateTime.now(ZoneOffset.UTC));
 		userRepository.save(user);
 		logger.info("Competed UserService::resetPassword");
 	}
+
+	public Map<String, Long> getPortalData() {
+		Long userCount = userRepository.count();
+		Long storyCount = travelStoryRepository.count();
+		Long subscriberCount = subscriberRepository.count();
+		Long contactUsCount = contactUsRepository.count();
+		Long blogCount = blogPostRepository.countByvBlog(false);
+		Long vlogCount = blogPostRepository.countByvBlog(true);
+		Map<String, Long> portalData = new HashMap<>();
+		portalData.put("userCount", userCount);
+		portalData.put("storyCount", storyCount);
+		portalData.put("subscriberCount", subscriberCount);
+		portalData.put("contactUsCount", contactUsCount);
+		portalData.put("blogCount", blogCount);
+		portalData.put("vlogCount", vlogCount);
+		return portalData;
+
+	}
+
+	public List<UserDTO> getAllUsers() {
+		return userRepository.findAll().stream().map(UserDTO::new).collect(Collectors.toList());
+	}
+	
+	public List<UserDTO> getAllUser() {
+		return userRepository.findAll().stream().map(x->new UserDTO(x,"")).collect(Collectors.toList());
+	}
+	
+	public List<Subscriber> getAllSubscriber() {
+		return subscriberRepository.findAll().stream().collect(Collectors.toList());
+	}
+	
+	public List<ContactUs> getAllContactUsRequest() {
+		return contactUsRepository.findAll().stream().collect(Collectors.toList());
+	}
+
 
 }

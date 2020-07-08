@@ -70,6 +70,7 @@ public class TravelStoryDTO {
 		this.likeCount = travelStory.getLikedBy() != null ? travelStory.getLikedBy().size() : 0;
 		this.setCreateDate(travelStory.getCreateDate());
 		this.view = travelStory.getView();
+		this.commentCount = travelStory.getComments() != null ? travelStory.getComments().size() : 0;
 	}
 
 	/**

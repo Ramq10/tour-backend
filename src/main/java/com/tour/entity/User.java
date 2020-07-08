@@ -73,6 +73,10 @@ public class User extends BaseEntity {
 	@OneToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "state_id", referencedColumnName = "id")
 	private State state;
+	
+	@OneToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "socialSiteLink", referencedColumnName = "id")
+	private SocialSiteLink socialSiteLink;
 
 	@Column(name = "password")
 	private String password;
@@ -88,6 +92,7 @@ public class User extends BaseEntity {
 		this.mobileNumber = userDTO.getMobileNumber();
 		this.blogger = userDTO.isBlogger();
 		this.hobby = Hobby.getEnum(userDTO.getHobby());
+		this.socialSiteLink = userDTO.getSocialSiteLink();
 	}
 
 	public User() {
@@ -204,6 +209,14 @@ public class User extends BaseEntity {
 
 	public void setBlogPost(List<BlogPost> blogPost) {
 		this.blogPost = blogPost;
+	}
+
+	public SocialSiteLink getSocialSiteLink() {
+		return socialSiteLink;
+	}
+
+	public void setSocialSiteLink(SocialSiteLink socialSiteLink) {
+		this.socialSiteLink = socialSiteLink;
 	}
 
 }

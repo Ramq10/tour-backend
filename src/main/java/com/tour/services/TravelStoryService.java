@@ -5,7 +5,7 @@ package com.tour.services;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +53,6 @@ public class TravelStoryService {
 	public TravelStoryDTO save(TravelStoryDTO travelStoryDTO) {
 		logger.info("Inside TravelStoryServce::save");
 		validate(travelStoryDTO);
-		ZoneId zoneid1 = ZoneId.of("Asia/Kolkata");  
 		User user = userService.getLoggedInUser();
 		List<File> storyFiles = new ArrayList<File>();
 		List<HashTag> tags = new ArrayList<HashTag>();
@@ -64,39 +63,41 @@ public class TravelStoryService {
 			tags = validateTags(travelStoryDTO.getTags());
 		}
 		TravelStory experienceStoryFromDB = null;
-		if(travelStoryDTO.getId() == null){
+		if (travelStoryDTO.getId() == null) {
 			experienceStoryFromDB = new TravelStory(travelStoryDTO);
 			experienceStoryFromDB.setView(0l);
-			experienceStoryFromDB.setCreateDate(LocalDate.now(zoneid1));
-
+			experienceStoryFromDB.setCreateDate(LocalDate.now(ZoneOffset.UTC));
 		} else {
 			experienceStoryFromDB = findById(travelStoryDTO.getId());
 			validateUser(experienceStoryFromDB.getUser());
-			experienceStoryFromDB.setModifiedDate(LocalDate.now(zoneid1));
+			experienceStoryFromDB
+					.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
 			try {
-				experienceStoryFromDB.setTitle(new String(travelStoryDTO.getTitle().getBytes("UTF-8"), "ISO-8859-1"));
-				experienceStoryFromDB.setDescription(new String(travelStoryDTO.getTitle().getBytes("UTF-8"), "ISO-8859-1"));
-				} catch (UnsupportedEncodingException e) {
+				experienceStoryFromDB.setTitle(new String(travelStoryDTO
+						.getTitle().getBytes("UTF-8"), "ISO-8859-1"));
+				experienceStoryFromDB.setDescription(new String(travelStoryDTO
+						.getDescription().getBytes("UTF-8"), "ISO-8859-1"));
+			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		experienceStoryFromDB.setUser(user);
 		experienceStoryFromDB.setFiles(storyFiles);
 		experienceStoryFromDB.setTags(tags);
-		
-		TravelStoryDTO storyDTO = new TravelStoryDTO(travelStoryRepository.save(experienceStoryFromDB));
+
+		TravelStoryDTO storyDTO = new TravelStoryDTO(
+				travelStoryRepository.save(experienceStoryFromDB));
 		logger.info("Completed TravelStoryServce::save");
 		return storyDTO;
 	}
-	
+
 	private void validateUser(User user) {
 		if (user.getId() != userService.getLoggedInUser().getId()) {
-			throw new UnprocessableEntityException("You are not allowed to edit this Story.");
+			throw new UnprocessableEntityException(
+					"You are not allowed to edit this Story.");
 		}
-
 	}
-
 
 	/**
 	 * @param tags
@@ -133,16 +134,17 @@ public class TravelStoryService {
 		}
 		if (StringUtils.isBlank(experienceStoryDTO.getDescription())) {
 			logger.info("Please enter discription of your journey.");
-			throw new UnprocessableEntityException("Please enter discription of your journey.");
+			throw new UnprocessableEntityException(
+					"Please enter discription of your journey.");
 		}
-		if (experienceStoryDTO.getTitle().length()>100) {
+		if (experienceStoryDTO.getTitle().length() > 100) {
 			logger.info("Title length exceeded.");
 			throw new UnprocessableEntityException("Title length exceeded.");
 		}
-//		if (experienceStoryDTO.getDescription().length()<50) {
-//			logger.info("Title length exceeded.");
-//			throw new UnprocessableEntityException("Title length exceeded.");
-//		}
+		// if (experienceStoryDTO.getDescription().length()<50) {
+		// logger.info("Title length exceeded.");
+		// throw new UnprocessableEntityException("Title length exceeded.");
+		// }
 		logger.info("Completed TravelStoryServce::save");
 	}
 
@@ -157,7 +159,8 @@ public class TravelStoryService {
 
 	public TravelStory findById(Long id) {
 		logger.info("Inside TravelStoryServce::findById");
-		Optional<TravelStory> experienceStory = travelStoryRepository.findById(id);
+		Optional<TravelStory> experienceStory = travelStoryRepository
+				.findById(id);
 		if (experienceStory == null || !experienceStory.isPresent()) {
 			throw new UnprocessableEntityException("Invalid TravelStory.");
 		}
@@ -179,20 +182,26 @@ public class TravelStoryService {
 	public List<TravelStoryDTO> getAll(String sortedBy) {
 		switch (sortedBy) {
 		case "viewed":
-			return travelStoryRepository.findAllByView().stream().map(n -> new TravelStoryDTO(n))
+			return travelStoryRepository.findAllByView().stream()
+					.map(n -> new TravelStoryDTO(n))
 					.collect(Collectors.toList());
-//		case "liked":
-//			return travelStoryRepository.findAllByLike().stream().map(n -> new TravelStoryDTO(n)).collect(Collectors.toList());
+			// case "liked":
+			// return travelStoryRepository.findAllByLike().stream().map(n ->
+			// new TravelStoryDTO(n)).collect(Collectors.toList());
 		case "all-t":
-			return travelStoryRepository.findAllLimit().stream().map(n -> new TravelStoryDTO(n))
+			return travelStoryRepository.findAllLimit().stream()
+					.map(n -> new TravelStoryDTO(n))
 					.collect(Collectors.toList());
-//		case "viewed-t":
-//			return travelStoryRepository.findAllByViewLimit().stream().map(n -> new TravelStoryDTO(n)).collect(Collectors.toList());
+			// case "viewed-t":
+			// return travelStoryRepository.findAllByViewLimit().stream().map(n
+			// -> new TravelStoryDTO(n)).collect(Collectors.toList());
 		default:
-			return travelStoryRepository.findAll().stream().map(n -> new TravelStoryDTO(n))
+			return travelStoryRepository.findAll().stream()
+					.map(n -> new TravelStoryDTO(n))
 					.collect(Collectors.toList());
 		}
-//		return travelStoryRepository.findAll().stream().map(n -> new TravelStoryDTO(n)).collect(Collectors.toList());
+		// return travelStoryRepository.findAll().stream().map(n -> new
+		// TravelStoryDTO(n)).collect(Collectors.toList());
 	}
 
 	public void dislikeStory(Long storyId) {
@@ -208,16 +217,18 @@ public class TravelStoryService {
 	}
 
 	public List<HashTagsDTO> getAllTags() {
-		return hashTagRepository.findAll().stream().map(n->new HashTagsDTO(n)).collect(Collectors.toList());
+		return hashTagRepository.findAll().stream()
+				.map(n -> new HashTagsDTO(n)).collect(Collectors.toList());
 	}
-	
+
 	public List<TravelStoryDTO> getStoryByTag(Long tagId) {
 		HashTag hashTag = hashTagRepository.findById(tagId).get();
-		if(hashTag != null) {
-			return hashTag.getTravelStory().stream().map(n -> new TravelStoryDTO(n))
+		if (hashTag != null) {
+			return hashTag.getTravelStory().stream()
+					.map(n -> new TravelStoryDTO(n))
 					.collect(Collectors.toList());
 		} else {
-			logger.info("Invalid HashTag. id = {}",tagId);
+			logger.info("Invalid HashTag. id = {}", tagId);
 			throw new UnprocessableEntityException("Invalid HashTag.");
 		}
 	}
@@ -225,8 +236,9 @@ public class TravelStoryService {
 	public List<TravelStoryDTO> getAllStoryByLoggedInUser() {
 		logger.info("Inside travelStoryService::getAllStoryByLoggedInUser");
 		User user = userService.getLoggedInUser();
-		if(!user.getStory().isEmpty()){
-			return user.getStory().stream().map(n->new TravelStoryDTO(n,"")).collect(Collectors.toList());
+		if (!user.getStory().isEmpty()) {
+			return user.getStory().stream().map(n -> new TravelStoryDTO(n, ""))
+					.collect(Collectors.toList());
 		}
 		logger.info("Completed travelStoryService::getAllStoryByLoggedInUser");
 		return null;

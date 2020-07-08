@@ -37,7 +37,7 @@ public class ContactUs extends BaseEntity {
 	private String email;
 
 	@NotNull
-	@Column(name = "message")
+	@Column(name = "message", length = 1000)
 	private String message;
 
 	public ContactUs(Long id, String name, String mobileNumber, String email, String message) {
@@ -48,6 +48,12 @@ public class ContactUs extends BaseEntity {
 		this.message = message;
 		super.setCreateDate(LocalDate.now());
 	}
+
+	public ContactUs() {
+		// TODO Auto-generated constructor stub
+	}
+
+
 
 	public Long getId() {
 		return id;

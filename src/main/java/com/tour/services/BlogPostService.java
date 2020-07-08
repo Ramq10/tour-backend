@@ -3,24 +3,40 @@
  */
 package com.tour.services;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+//import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+//import com.google.api.client.repackaged.com.google.common.base.Predicate;
 import com.tour.entity.BlogPost;
 import com.tour.entity.File;
 import com.tour.entity.User;
 import com.tour.entity.dto.BlogPostDTO;
+import com.tour.entity.dto.SearchColumnDTO;
 import com.tour.enums.BlogGenres;
 import com.tour.exception.UnprocessableEntityException;
 import com.tour.repository.BlogPostRepository;
@@ -48,7 +64,6 @@ public class BlogPostService {
 	public void saveOrUpdate(BlogPostDTO blogPostDTO) {
 		logger.info("Inside BlogPostService::saveOrUpdate");
 		validate(blogPostDTO);
-		ZoneId zoneid1 = ZoneId.of("Asia/Kolkata");
 		BlogPost blogPostFromDB = null;
 		// List<HashTag> tags = new ArrayList<HashTag>();
 		File blogImage = new File();
@@ -58,12 +73,23 @@ public class BlogPostService {
 		if (blogPostDTO.getId() == null) {
 			vaidateUrl(blogPostDTO.getUrl());
 			blogPostFromDB = new BlogPost(blogPostDTO);
-			blogPostFromDB.setCreateDate(LocalDate.now(zoneid1));
+			blogPostFromDB.setCreateDate(LocalDate.now(ZoneOffset.UTC));
 			blogPostFromDB.setView(0L);
 		} else {
 			blogPostFromDB = getBlogById(blogPostDTO.getId());
+			try {
+				blogPostFromDB.setTitle(new String(blogPostDTO.getTitle()
+						.getBytes("UTF-8"), "ISO-8859-1"));
+				blogPostFromDB.setSummery(new String(blogPostDTO.getSummery()
+						.getBytes("UTF-8"), "ISO-8859-1"));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			blogPostFromDB.setBlogGenre(BlogGenres.getEnum(blogPostDTO
+					.getBlogGenre()));
+			blogPostFromDB.setvBlog(blogPostDTO.isvBlog());
 			validateUser(blogPostFromDB.getBlogger());
-			blogPostFromDB.setModifiedDate(LocalDate.now(zoneid1));
+			blogPostFromDB.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
 		}
 		// if (blogPostDTO.getTags() != null) {
 		// tags = validateTags(blogPostDTO.getTags());
@@ -179,48 +205,69 @@ public class BlogPostService {
 		logger.info("Complete BlogPostService::validate");
 	}
 
-	/**
-	 * @return
-	 */
-	public List<BlogPostDTO> getAllBlogPost(String sortedBy) {
-		switch (sortedBy) {
-		case "date":
-			return blogPostRepository.findByvBlogOrderByCreateDateDesc(false)
-					.stream().map(m -> {
-						return new BlogPostDTO(m);
-					}).collect(Collectors.toList());
-		case "view":
-			return blogPostRepository.findByvBlogOrderByViewAsc(false).stream()
-					.map(m -> {
-						return new BlogPostDTO(m);
-					}).collect(Collectors.toList());
-		default:
-			return blogPostRepository.findByvBlogOrderByCreateDateDesc(false)
-					.stream().map(m -> {
-						return new BlogPostDTO(m);
-					}).collect(Collectors.toList());
-		}
-	}
+	// /**
+	// * @return
+	// */
+	// public List<BlogPostDTO> getAllBlogPost(String sortedBy) {
+	// switch (sortedBy) {
+	// case "date":
+	// return blogPostRepository.findByvBlogOrderByCreateDateDesc(false)
+	// .stream().map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList());
+	// case "view":
+	// return blogPostRepository.findByvBlogOrderByViewDesc(false).stream()
+	// .map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList());
+	// case "latest-t":
+	// return blogPostRepository.findByvBlogOrderByCreateDateDesc(false)
+	// .stream().map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList()).stream().limit(3).collect(Collectors.toList());
+	//
+	// // case "view":
+	// // return blogPostRepository.findByvBlogOrderByViewAsc(false).stream()
+	// // .map(m -> {
+	// // return new BlogPostDTO(m);
+	// // }).collect(Collectors.toList());
+	// default:
+	// return blogPostRepository.findByvBlogOrderByCreateDateDesc(false)
+	// .stream().map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList());
+	// }
+	// }
 
-	public List<BlogPostDTO> getAllVideoBlogPost(String sortedBy) {
-		switch (sortedBy) {
-		case "date":
-			return blogPostRepository.findByvBlogOrderByCreateDateDesc(true)
-					.stream().map(m -> {
-						return new BlogPostDTO(m);
-					}).collect(Collectors.toList());
-		case "view":
-			return blogPostRepository.findByvBlogOrderByViewAsc(true).stream()
-					.map(m -> {
-						return new BlogPostDTO(m);
-					}).collect(Collectors.toList());
-		default:
-			return blogPostRepository.findByvBlogOrderByCreateDateDesc(true)
-					.stream().map(m -> {
-						return new BlogPostDTO(m);
-					}).collect(Collectors.toList());
-		}
-	}
+	// public List<BlogPostDTO> getAllVideoBlogPost(String sortedBy) {
+	// switch (sortedBy) {
+	// case "date":
+	// return blogPostRepository.findByvBlogOrderByCreateDateDesc(true)
+	// .stream().map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList());
+	// case "view":
+	// return blogPostRepository.findByvBlogOrderByViewDesc(true).stream()
+	// .map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList());
+	// case "asc-date":
+	// return blogPostRepository.findByvBlogOrderByCreateDateAsc(true)
+	// .stream().map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList());
+	// // case "trending":
+	// // return blogPostRepository.findByvBlogOrderByViewAsc(true).stream()
+	// // .map(m -> {
+	// // return new BlogPostDTO(m);
+	// // }).collect(Collectors.toList());
+	// default:
+	// return blogPostRepository.findByvBlogOrderByCreateDateDesc(true)
+	// .stream().map(m -> {
+	// return new BlogPostDTO(m);
+	// }).collect(Collectors.toList());
+	// }
+	// }
 
 	public List<String> getAllBlog() {
 		return BlogGenres.genreList();
@@ -243,15 +290,141 @@ public class BlogPostService {
 
 	}
 
+	@PersistenceContext
+	private EntityManager em;
+
 	public List<BlogPostDTO> getAllBlogByLoggedInUser() {
 		logger.info("Inside BlogPostService::getAllBlogByLoggedInUser");
 		User user = authenticationService.getAuthenticatedUser();
-		if (!user.getStory().isEmpty()) {
-			return user.getBlogPost().stream().map(v->new BlogPostDTO(v,""))
+		if (!user.getBlogPost().isEmpty()) {
+			return user.getBlogPost().stream().map(v -> new BlogPostDTO(v, ""))
 					.collect(Collectors.toList());
 		}
 		logger.info("Completed BlogPostService::getAllBlogByLoggedInUser");
 		return null;
+	}
+
+	private List<BlogPostDTO> searchByTitle(String searchBy) {
+		List<String> substring = new ArrayList<>();
+		Set<BlogPostDTO> ls = new HashSet<BlogPostDTO>();
+		String[] s = searchBy.split(" ");
+		Collections.addAll(substring, s);
+		for (int i = 0; i < substring.size(); i++) {
+			if (substring.get(i).length() > 2) {
+				List<BlogPost> localResult = blogPostRepository
+						.findByvBlogAndTitleContainingIgnoreCase(false,
+								substring.get(i));
+				ls.addAll(localResult.stream().map(BlogPostDTO::new)
+						.collect(Collectors.toSet()));
+			}
+		}
+		return ls.stream().collect(Collectors.toList());
+	}
+
+	public List<BlogPostDTO> filterBlogPost(String searchBy,
+			SearchColumnDTO searchColumnDTO) {
+		if (!StringUtils.isBlank(searchBy)) {
+			return searchByTitle(searchBy);
+		}
+		if (searchColumnDTO != null) {
+			List<BlogPost> bg = blogPostRepository
+					.findAll(filterAllBlogPost(searchColumnDTO));
+			return bg.stream().map(BlogPostDTO::new)
+					.collect(Collectors.toList());
+		}
+		return null;
+	}
+
+	public Specification<BlogPost> filterAllBlogPost(
+			SearchColumnDTO searchColumnDTO) {
+
+		logger.info("Starting Process For Creating Specification.");
+		return new Specification<BlogPost>() {
+			@Override
+			public Predicate toPredicate(Root<BlogPost> root,
+					CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+				query.orderBy(criteriaBuilder.asc(root.get("id")));
+				List<Predicate> predicates = new ArrayList<>();
+
+				if (searchColumnDTO.getVlog() != null) {
+					if (searchColumnDTO.getVlog()) {
+						predicates.add(criteriaBuilder.equal(root.get("vBlog"),
+								searchColumnDTO.getVlog()));
+					} else if (!searchColumnDTO.getVlog()) {
+						predicates.add(criteriaBuilder.equal(root.get("vBlog"),
+								searchColumnDTO.getVlog()));
+					}
+				}
+
+				if (!StringUtils.isBlank(searchColumnDTO.getTitle())) {
+					predicates.add(criteriaBuilder.like(
+							criteriaBuilder.lower(root.get("title")), "%"
+									+ searchColumnDTO.getTitle().toLowerCase()
+									+ "%"));
+				}
+
+				if (searchColumnDTO.getGenre() != null
+						&& !searchColumnDTO.getGenre().isEmpty()) {
+					Set<BlogGenres> genres = new HashSet<>();
+					for (String s : searchColumnDTO.getGenre()) {
+						BlogGenres blogGenre = BlogGenres.getEnum(s);
+						genres.add(blogGenre);
+					}
+					predicates.add(root.get("blogGenre").in(genres));
+				}
+
+				if (searchColumnDTO.getAscView() != null) {
+					if (searchColumnDTO.getAscView()) {
+						query.orderBy(criteriaBuilder.asc(root.get("view")));
+					} else if (!searchColumnDTO.getAscView()) {
+						query.orderBy(criteriaBuilder.desc(root.get("view")));
+					}
+
+				}
+
+				if (searchColumnDTO.getAscDate() != null) {
+					if (searchColumnDTO.getAscDate()) {
+						query.orderBy(criteriaBuilder.asc(root
+								.get("createDate")));
+					} else if (!searchColumnDTO.getAscDate()) {
+						query.orderBy(criteriaBuilder.desc(root
+								.get("createDate")));
+					}
+				}
+
+				if (!StringUtils.isBlank(searchColumnDTO.getSummery())) {
+					predicates.add(criteriaBuilder.like(
+							criteriaBuilder.lower(root.get("summery")), "%"
+									+ searchColumnDTO.getSummery()
+											.toLowerCase() + "%"));
+				}
+
+				if (!StringUtils.isBlank(searchColumnDTO.getUrl())) {
+					predicates.add(criteriaBuilder.like(
+							criteriaBuilder.lower(root.get("url")), "%"
+									+ searchColumnDTO.getUrl().toLowerCase()
+									+ "%"));
+				}
+
+				if (searchColumnDTO.getBlogger() != null
+						&& !searchColumnDTO.getBlogger().isEmpty()) {
+					predicates.add(root.get("blogger").get("name")
+							.in(searchColumnDTO.getBlogger()));
+				}
+
+				if (!StringUtils.isBlank(searchColumnDTO.getToDate())
+						&& !StringUtils.isBlank(searchColumnDTO.getFromDate())) {
+					LocalDate startDate = LocalDate.parse(searchColumnDTO
+							.getFromDate());
+					LocalDate endDate = LocalDate.parse(searchColumnDTO
+							.getToDate());
+					predicates.add(criteriaBuilder.between(
+							root.get("createDate"), startDate, endDate));
+				}
+				return criteriaBuilder.and(criteriaBuilder.and(predicates
+						.toArray(new Predicate[predicates.size()])));
+			}
+		};
 	}
 
 	// public List<BlogPostDTO> getBlogPostByTag(Long tagId) {

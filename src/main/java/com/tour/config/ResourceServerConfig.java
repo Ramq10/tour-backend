@@ -41,6 +41,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 				.antMatchers(HttpMethod.OPTIONS, "/**/oauth/token").permitAll().antMatchers("/**/contact-us/")
 				.permitAll().antMatchers("/**/forget-password/{mail}").permitAll().antMatchers("/**/reset-password/**")
 				.permitAll().antMatchers("/**/user/").permitAll().antMatchers("/**/all-story/").permitAll()
+				.antMatchers("/**/all-user/").permitAll()
 				.antMatchers("/**/all-blog/**").permitAll().antMatchers("/**/file/upload/").permitAll()
 				.antMatchers("/**/country/{id}").permitAll().antMatchers("/**/blog-genre/").permitAll()
 				.antMatchers("/**/subscribe/").permitAll().antMatchers("/**/all-story/tags/{id}").permitAll()

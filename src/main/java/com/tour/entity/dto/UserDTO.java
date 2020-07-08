@@ -3,6 +3,7 @@
  */
 package com.tour.entity.dto;
 
+import com.tour.entity.SocialSiteLink;
 import com.tour.entity.User;
 
 /**
@@ -21,6 +22,10 @@ public class UserDTO {
 	private Long profilePhotoId;
 	private Long countryId;
 	private String countryName;
+	private String fbLink;
+	private String instaLink;
+	private Long socialSiteLinkId;
+	private SocialSiteLink socialSiteLink;
 	private Long stateId;
 	private String stateName;
 	private String password;
@@ -38,12 +43,16 @@ public class UserDTO {
 		this.stateId = user.getState() != null ? user.getState().getId() : null;
 		this.stateName = user.getState() != null ? user.getState().getName() : null;
 		this.blogger = user.isBlogger();
+		this.fbLink = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getFbLink() : "";
+		this.instaLink = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getInstaLink() : "";
+		this.socialSiteLinkId = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getId() : null;
 	}
 
 	public UserDTO(User user, String s) {
 		this.id = user.getId();
 		this.name = user.getName();
 		this.email = user.getEmail();
+		this.countryName = user.getCountry() != null ? user.getCountry().getName() : null;
 	}
 
 	public UserDTO() {
@@ -152,6 +161,38 @@ public class UserDTO {
 
 	public void setProfilePhotoId(Long profilePhotoId) {
 		this.profilePhotoId = profilePhotoId;
+	}
+
+	public String getFbLink() {
+		return fbLink;
+	}
+
+	public void setFbLink(String fbLink) {
+		this.fbLink = fbLink;
+	}
+
+	public String getInstaLink() {
+		return instaLink;
+	}
+
+	public void setInstaLink(String instaLink) {
+		this.instaLink = instaLink;
+	}
+
+	public SocialSiteLink getSocialSiteLink() {
+		return socialSiteLink;
+	}
+
+	public void setSocialSiteLink(SocialSiteLink socialSiteLink) {
+		this.socialSiteLink = socialSiteLink;
+	}
+
+	public Long getSocialSiteLinkId() {
+		return socialSiteLinkId;
+	}
+
+	public void setSocialSiteLinkId(Long socialSiteLinkId) {
+		this.socialSiteLinkId = socialSiteLinkId;
 	}
 
 }
