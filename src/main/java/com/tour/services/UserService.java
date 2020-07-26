@@ -351,11 +351,11 @@ public class UserService {
 	}
 
 	public List<UserDTO> getAllUsers() {
-		return userRepository.findAll().stream().map(UserDTO::new).collect(Collectors.toList());
+		return userRepository.findAllByOrderByIdDesc().stream().map(UserDTO::new).collect(Collectors.toList());
 	}
 	
 	public List<UserDTO> getAllUser() {
-		return userRepository.findAll().stream().map(x->new UserDTO(x,"")).collect(Collectors.toList());
+		return userRepository.findAll().stream().filter(s->!s.getBlogPost().isEmpty()).map(x->new UserDTO(x,"")).collect(Collectors.toList());
 	}
 	
 	public List<Subscriber> getAllSubscriber() {

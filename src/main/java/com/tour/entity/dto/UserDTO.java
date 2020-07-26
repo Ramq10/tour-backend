@@ -3,6 +3,8 @@
  */
 package com.tour.entity.dto;
 
+import java.util.stream.Collectors;
+
 import com.tour.entity.SocialSiteLink;
 import com.tour.entity.User;
 
@@ -29,6 +31,9 @@ public class UserDTO {
 	private Long stateId;
 	private String stateName;
 	private String password;
+	private Integer blogPostCount;
+	private Integer vlogPostCount;
+	private Integer storyCount;
 
 	public UserDTO(User user) {
 		this.id = user.getId();
@@ -43,6 +48,9 @@ public class UserDTO {
 		this.stateId = user.getState() != null ? user.getState().getId() : null;
 		this.stateName = user.getState() != null ? user.getState().getName() : null;
 		this.blogger = user.isBlogger();
+		this.storyCount = user.getStory() != null ? user.getStory().size() : null;
+		this.setBlogPostCount(user.getBlogPost() != null ? user.getBlogPost().stream().filter(x->!x.getvBlog()).collect(Collectors.toList()).size() : null); 
+		this.setVlogPostCount(user.getBlogPost() != null ? user.getBlogPost().stream().filter(x->x.getvBlog()).collect(Collectors.toList()).size() : null); 
 		this.fbLink = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getFbLink() : "";
 		this.instaLink = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getInstaLink() : "";
 		this.socialSiteLinkId = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getId() : null;
@@ -194,5 +202,30 @@ public class UserDTO {
 	public void setSocialSiteLinkId(Long socialSiteLinkId) {
 		this.socialSiteLinkId = socialSiteLinkId;
 	}
+
+	public Integer getBlogPostCount() {
+		return blogPostCount;
+	}
+
+	public void setBlogPostCount(Integer blogPostCount) {
+		this.blogPostCount = blogPostCount;
+	}
+
+	public Integer getVlogPostCount() {
+		return vlogPostCount;
+	}
+
+	public void setVlogPostCount(Integer vlogPostCount) {
+		this.vlogPostCount = vlogPostCount;
+	}
+
+	public Integer getStoryCount() {
+		return storyCount;
+	}
+
+	public void setStoryCount(Integer storyCount) {
+		this.storyCount = storyCount;
+	}
+
 
 }

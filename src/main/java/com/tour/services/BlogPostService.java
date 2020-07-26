@@ -304,27 +304,27 @@ public class BlogPostService {
 		return null;
 	}
 
-	private List<BlogPostDTO> searchByTitle(String searchBy) {
+	private List<BlogPostDTO> searchByTitle(String searchBy, boolean vlog) {
 		List<String> substring = new ArrayList<>();
-		Set<BlogPostDTO> ls = new HashSet<BlogPostDTO>();
+		Set<BlogPostDTO> blogs = new HashSet<BlogPostDTO>();
 		String[] s = searchBy.split(" ");
 		Collections.addAll(substring, s);
 		for (int i = 0; i < substring.size(); i++) {
 			if (substring.get(i).length() > 2) {
 				List<BlogPost> localResult = blogPostRepository
-						.findByvBlogAndTitleContainingIgnoreCase(false,
+						.findByvBlogAndTitleContainingIgnoreCase(vlog,
 								substring.get(i));
-				ls.addAll(localResult.stream().map(BlogPostDTO::new)
+				blogs.addAll(localResult.stream().map(BlogPostDTO::new)
 						.collect(Collectors.toSet()));
 			}
 		}
-		return ls.stream().collect(Collectors.toList());
+		return blogs.stream().collect(Collectors.toList());
 	}
 
 	public List<BlogPostDTO> filterBlogPost(String searchBy,
-			SearchColumnDTO searchColumnDTO) {
+			SearchColumnDTO searchColumnDTO, boolean vlog) {
 		if (!StringUtils.isBlank(searchBy)) {
-			return searchByTitle(searchBy);
+			return searchByTitle(searchBy, vlog);
 		}
 		if (searchColumnDTO != null) {
 			List<BlogPost> bg = blogPostRepository

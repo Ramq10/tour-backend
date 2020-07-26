@@ -41,8 +41,8 @@ public class BlogPostController {
 
 	@PostMapping("/all-blog")
 	public List<BlogPostDTO> getAllBlog(
-			@RequestParam(required = false) String searchBy, @RequestBody(required = false) SearchColumnDTO searchColumnDTO) {
-		return blogPostService.filterBlogPost(searchBy, searchColumnDTO);
+			@RequestParam(required = false) String searchBy, @RequestBody(required = false) SearchColumnDTO searchColumnDTO,@RequestParam(required = false) boolean vlog) {
+		return blogPostService.filterBlogPost(searchBy, searchColumnDTO, vlog);
 
 	}
 	
