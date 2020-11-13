@@ -23,4 +23,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	User findByEmail(String email);
 	
 	List<User> findAllByOrderByIdDesc();
+	
+	List<User> findAllByBlogger(boolean blogger);
+	
+	List<User> findAllByVlogger(boolean vlogger);
+	
+	List<User> findAllByStoryWriter(boolean storyWriter);
 }

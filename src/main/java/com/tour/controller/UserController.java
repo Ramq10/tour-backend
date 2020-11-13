@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tour.entity.ContactUs;
 import com.tour.entity.Subscriber;
+import com.tour.entity.dto.SiteReviewDTO;
 import com.tour.entity.dto.UserDTO;
 import com.tour.services.UserService;
 
@@ -60,34 +61,39 @@ public class UserController {
 	public void forgetPasswordRequest(@PathVariable String mail) {
 		userService.forgetPasswordRequest(mail);
 	}
-	
+
 	@PostMapping("/reset-password")
 	public void resetPassword(@RequestParam String email, @RequestParam String password) {
 		userService.resetPassword(email, password);
 	}
-	
+
 	@GetMapping("/portal-data")
 	public Map<String, Long> getPortalData() {
 		return userService.getPortalData();
 	}
-	
+
 	@GetMapping("/all-users")
 	public List<UserDTO> getAllUsers() {
 		return userService.getAllUsers();
 	}
-	
+
 	@GetMapping("/all-user")
-	public List<UserDTO> getAllUser() {
-		return userService.getAllUsers();
+	public List<UserDTO> getAllUser(@RequestParam String param) {
+		return userService.getAllUser(param);
 	}
-	
+
 	@GetMapping("/all-subscriber")
 	public List<Subscriber> getAllSubscriber() {
 		return userService.getAllSubscriber();
 	}
-	
+
 	@GetMapping("/all-contactus-request")
 	public List<ContactUs> getAllContactUsRequest() {
 		return userService.getAllContactUsRequest();
+	}
+
+	@PostMapping("/review")
+	public UserDTO saveOrUpdateReview(@RequestBody SiteReviewDTO reviewDTO) {
+		return userService.postSiteReview(reviewDTO);
 	}
 }

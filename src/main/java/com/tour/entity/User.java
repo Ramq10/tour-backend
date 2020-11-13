@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -50,7 +51,13 @@ public class User extends BaseEntity {
 	private List<BlogPost> blogPost;
 
 	@Column(name = "blogger")
-	private boolean blogger;
+	private Boolean blogger;
+	
+	@Column(name = "vlogger")
+	private Boolean vlogger;
+	
+	@Column(name = "story_writer")
+	private Boolean storyWriter;
 
 	@Column(name = "email")
 	private String email;
@@ -77,6 +84,9 @@ public class User extends BaseEntity {
 	@OneToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "socialSiteLink", referencedColumnName = "id")
 	private SocialSiteLink socialSiteLink;
+	
+	@Embedded
+    private SiteReview siteReview;
 
 	@Column(name = "password")
 	private String password;
@@ -90,7 +100,7 @@ public class User extends BaseEntity {
 		this.gender = Gender.getEnum(userDTO.getGender());
 		this.email = userDTO.getEmail();
 		this.mobileNumber = userDTO.getMobileNumber();
-		this.blogger = userDTO.isBlogger();
+//		this.blogger = userDTO.isBlogger();
 		this.hobby = Hobby.getEnum(userDTO.getHobby());
 		this.socialSiteLink = userDTO.getSocialSiteLink();
 	}
@@ -145,14 +155,6 @@ public class User extends BaseEntity {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public boolean isBlogger() {
-		return blogger;
-	}
-
-	public void setBlogger(boolean blogger) {
-		this.blogger = blogger;
 	}
 
 	public Gender getGender() {
@@ -217,6 +219,63 @@ public class User extends BaseEntity {
 
 	public void setSocialSiteLink(SocialSiteLink socialSiteLink) {
 		this.socialSiteLink = socialSiteLink;
+	}
+
+	public Boolean getBlogger() {
+		return blogger;
+	}
+
+	public void setBlogger(Boolean blogger) {
+		this.blogger = blogger;
+	}
+
+	public Boolean getVlogger() {
+		return vlogger;
+	}
+
+	public void setVlogger(Boolean vlogger) {
+		this.vlogger = vlogger;
+	}
+
+	public Boolean getStoryWriter() {
+		return storyWriter;
+	}
+
+	public void setStoryWriter(Boolean storyWriter) {
+		this.storyWriter = storyWriter;
+	}
+
+	public SiteReview getSiteReview() {
+		return siteReview;
+	}
+
+	public void setSiteReview(SiteReview siteReview) {
+		this.siteReview = siteReview;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
 	}
 
 }

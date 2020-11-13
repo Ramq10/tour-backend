@@ -46,6 +46,10 @@ public class Comment extends BaseEntity {
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "travel_story_id")
 	private TravelStory post;
+	
+	@ManyToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "recomandation_blog_id")
+	private RecomandationBlog recomandationBlog;
 
 	public Comment(CommentDTO commentDTO ) {
 		this.id = commentDTO.getId();

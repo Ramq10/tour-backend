@@ -71,4 +71,9 @@ public class File {
 		this.path = path;
 	}
 
+	@Override
+	public String toString() {
+		return "File [id=" + id + ", name=" + name + ", path=" + path + "]";
+	}
+
 }

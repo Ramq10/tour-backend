@@ -88,6 +88,11 @@ public class TravelStoryService {
 
 		TravelStoryDTO storyDTO = new TravelStoryDTO(
 				travelStoryRepository.save(experienceStoryFromDB));
+		
+		if (user.getStoryWriter() != Boolean.TRUE) {
+			user.setStoryWriter(true);
+			userService.updateUser(user);
+		}
 		logger.info("Completed TravelStoryServce::save");
 		return storyDTO;
 	}
@@ -145,7 +150,7 @@ public class TravelStoryService {
 		// logger.info("Title length exceeded.");
 		// throw new UnprocessableEntityException("Title length exceeded.");
 		// }
-		logger.info("Completed TravelStoryServce::save");
+		logger.info("Completed TravelStoryServce::validate");
 	}
 
 	public void likeStory(Long storyId) {

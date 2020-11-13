@@ -45,5 +45,5 @@ public class FileController {
 	public void deleteFile(@PathVariable Long id) {
 		storyFileService.deleteFileById(id);
 	}
-
+	
 }

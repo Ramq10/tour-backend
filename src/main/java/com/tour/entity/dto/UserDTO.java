@@ -34,6 +34,7 @@ public class UserDTO {
 	private Integer blogPostCount;
 	private Integer vlogPostCount;
 	private Integer storyCount;
+	private String siteReviewDescripion;
 
 	public UserDTO(User user) {
 		this.id = user.getId();
@@ -47,13 +48,18 @@ public class UserDTO {
 		this.profilePhotoId = user.getProfilePhoto() != null ? user.getProfilePhoto().getId() : null;
 		this.stateId = user.getState() != null ? user.getState().getId() : null;
 		this.stateName = user.getState() != null ? user.getState().getName() : null;
-		this.blogger = user.isBlogger();
+		this.blogger = user.getBlogger() == Boolean.TRUE ? true : false;
 		this.storyCount = user.getStory() != null ? user.getStory().size() : null;
-		this.setBlogPostCount(user.getBlogPost() != null ? user.getBlogPost().stream().filter(x->!x.getvBlog()).collect(Collectors.toList()).size() : null); 
-		this.setVlogPostCount(user.getBlogPost() != null ? user.getBlogPost().stream().filter(x->x.getvBlog()).collect(Collectors.toList()).size() : null); 
+		this.setBlogPostCount(user.getBlogPost() != null
+				? user.getBlogPost().stream().filter(x -> !x.getvBlog()).collect(Collectors.toList()).size()
+				: null);
+		this.setVlogPostCount(user.getBlogPost() != null
+				? user.getBlogPost().stream().filter(x -> x.getvBlog()).collect(Collectors.toList()).size()
+				: null);
 		this.fbLink = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getFbLink() : "";
 		this.instaLink = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getInstaLink() : "";
 		this.socialSiteLinkId = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getId() : null;
+		this.siteReviewDescripion = user.getSiteReview() != null ? user.getSiteReview().getDescription() : null;
 	}
 
 	public UserDTO(User user, String s) {
@@ -227,5 +233,12 @@ public class UserDTO {
 		this.storyCount = storyCount;
 	}
 
+	public String getSiteReviewDescripion() {
+		return siteReviewDescripion;
+	}
+
+	public void setSiteReviewDescripion(String siteReviewDescripion) {
+		this.siteReviewDescripion = siteReviewDescripion;
+	}
 
 }

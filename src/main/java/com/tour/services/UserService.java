@@ -23,10 +23,12 @@ import org.springframework.stereotype.Service;
 import com.tour.entity.ContactUs;
 import com.tour.entity.Country;
 import com.tour.entity.File;
+import com.tour.entity.SiteReview;
 import com.tour.entity.SocialSiteLink;
 import com.tour.entity.State;
 import com.tour.entity.Subscriber;
 import com.tour.entity.User;
+import com.tour.entity.dto.SiteReviewDTO;
 import com.tour.entity.dto.UserDTO;
 import com.tour.enums.Hobby;
 import com.tour.exception.UnprocessableEntityException;
@@ -87,44 +89,50 @@ public class UserService {
 		if (userDTO.getProfilePhotoId() != null) {
 			profilePhoto = validateProfilePhoto(userDTO.getProfilePhotoId());
 		}
+		boolean firstUser = false;
 		if (userDTO.getId() == null) {
+			firstUser = true;
 			validateEmail(userDTO.getEmail());
 			userFromDB = new User(userDTO);
 			userFromDB.setCreateDate(LocalDate.now(ZoneOffset.UTC));
 			if (StringUtils.isBlank(userDTO.getPassword())) {
-				throw new UnprocessableEntityException(
-						"Please enter valid Password.");
+				throw new UnprocessableEntityException("Please enter valid Password.");
 			}
-			userFromDB
-					.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+			userFromDB.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 			userFromDB.setPasswordUpdateDate(LocalDateTime.now(ZoneOffset.UTC));
 		} else {
+			firstUser = false;
 			userFromDB = getUserById(userDTO.getId());
 			userFromDB.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
 			userFromDB.setName(userDTO.getName());
 			userFromDB.setMobileNumber(userDTO.getMobileNumber());
 			userFromDB.setHobby(Hobby.getEnum(userDTO.getHobby()));
 		}
-		if (StringUtils.isNotBlank(userDTO.getInstaLink()) || StringUtils.isNotBlank(userDTO.getFbLink())){
-		validateAndSaveSocialLink(userFromDB, userDTO);
+		if (StringUtils.isNotBlank(userDTO.getInstaLink()) || StringUtils.isNotBlank(userDTO.getFbLink())) {
+			validateAndSaveSocialLink(userFromDB, userDTO);
 		}
 		userFromDB.setProfilePhoto(profilePhoto);
 		setAddress(userFromDB, userDTO);
 		logger.info("Completed UserService::saveOrUpdate");
-		return saveUser(userFromDB);
+		if (firstUser) {
+			return saveUser(userFromDB);
+		} else {
+			return updateUser(userFromDB);
+		}
 	}
 
 	private void validateAndSaveSocialLink(User userFromDB, UserDTO userDTO) {
 		logger.info("Inside UserService::validateAndSaveSocialLink");
-		SocialSiteLink socialSiteLink = null ;
+		SocialSiteLink socialSiteLink = null;
 		if (userDTO.getSocialSiteLinkId() != null) {
-			socialSiteLink = socialSiteLinkRepository.findById(
-					userDTO.getSocialSiteLinkId()).get();
-			socialSiteLink.setInstaLink(StringUtils.isNotBlank(userDTO.getInstaLink()) ? userDTO.getInstaLink() : socialSiteLink.getInstaLink());
-			socialSiteLink.setFbLink(StringUtils.isNotBlank(userDTO.getFbLink()) ? userDTO.getFbLink() : socialSiteLink.getFbLink());
+			socialSiteLink = socialSiteLinkRepository.findById(userDTO.getSocialSiteLinkId()).get();
+			socialSiteLink.setInstaLink(StringUtils.isNotBlank(userDTO.getInstaLink()) ? userDTO.getInstaLink()
+					: socialSiteLink.getInstaLink());
+			socialSiteLink.setFbLink(
+					StringUtils.isNotBlank(userDTO.getFbLink()) ? userDTO.getFbLink() : socialSiteLink.getFbLink());
 			socialSiteLink.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
 		} else {
-			socialSiteLink = new SocialSiteLink(null,userDTO.getFbLink(),userDTO.getInstaLink());
+			socialSiteLink = new SocialSiteLink(null, userDTO.getFbLink(), userDTO.getInstaLink());
 			socialSiteLink.setCreateDate(LocalDate.now(ZoneOffset.UTC));
 		}
 		userFromDB.setSocialSiteLink(socialSiteLink);
@@ -135,12 +143,18 @@ public class UserService {
 		logger.info("Inside UserService::saveUser");
 		UserDTO user = new UserDTO(userRepository.save(userFromDB));
 		Runnable mailThread = () -> {
-			emailSender.sendWelcomeMail(user.getName(), user.getEmail(),
-					"Welcome To Roverstrail", "User " + user.getEmail()
-							+ " has successfully registered with RoversTrail.");
+			emailSender.sendWelcomeMail(user.getName(), user.getEmail(), "Welcome To Roverstrail",
+					"User " + user.getEmail() + " has successfully registered with RoversTrail.");
 		};
 		new Thread(mailThread).start();
 		logger.info("Completed UserService::saveUser");
+		return user;
+	}
+
+	public UserDTO updateUser(User userFromDB) {
+		logger.info("Inside UserService::updateUser");
+		UserDTO user = new UserDTO(userRepository.save(userFromDB));
+		logger.info("Completed UserService::updateUser");
 		return user;
 	}
 
@@ -199,8 +213,7 @@ public class UserService {
 			}
 			List<State> stateList = country.getState();
 			if (!stateList.contains(state)) {
-				throw new UnprocessableEntityException(
-						"State does not belong to this Country.");
+				throw new UnprocessableEntityException("State does not belong to this Country.");
 			}
 			userFromDB.setState(state);
 		}
@@ -237,16 +250,13 @@ public class UserService {
 	 */
 	private void validate(UserDTO user) {
 		logger.info("Inside UserService::validate");
-		if (StringUtils.isBlank(user.getName())
-				|| !CommonUtil.isNameValid(user.getName())
+		if (StringUtils.isBlank(user.getName()) || !CommonUtil.isNameValid(user.getName())
 				|| user.getName().length() > 30) {
 			throw new UnprocessableEntityException("Please enter a valid Name.");
 		}
-		if (StringUtils.isBlank(user.getEmail())
-				|| !CommonUtil.isEmailValid(user.getEmail())
+		if (StringUtils.isBlank(user.getEmail()) || !CommonUtil.isEmailValid(user.getEmail())
 				|| user.getEmail().length() > 65) {
-			throw new UnprocessableEntityException(
-					"Please enter a valid email.");
+			throw new UnprocessableEntityException("Please enter a valid email.");
 		}
 		if (StringUtils.isBlank(user.getHobby())) {
 			throw new UnprocessableEntityException("Please enter valid Hobby.");
@@ -255,8 +265,7 @@ public class UserService {
 			throw new UnprocessableEntityException("Please enter valid Gender.");
 		}
 		if (Objects.isNull(user.getCountryId())) {
-			throw new UnprocessableEntityException(
-					"Please enter valid Country.");
+			throw new UnprocessableEntityException("Please enter valid Country.");
 		}
 		logger.info("Completed UserService::validate");
 	}
@@ -353,18 +362,49 @@ public class UserService {
 	public List<UserDTO> getAllUsers() {
 		return userRepository.findAllByOrderByIdDesc().stream().map(UserDTO::new).collect(Collectors.toList());
 	}
-	
-	public List<UserDTO> getAllUser() {
-		return userRepository.findAll().stream().filter(s->!s.getBlogPost().isEmpty()).map(x->new UserDTO(x,"")).collect(Collectors.toList());
+
+	public List<UserDTO> getAllUser(String param) {
+		switch (param) {
+		case "blogger":
+			return userRepository.findAllByBlogger(true).stream().map(x -> new UserDTO(x, ""))
+					.collect(Collectors.toList());
+
+		case "vlogger":
+			return userRepository.findAllByVlogger(true).stream().map(x -> new UserDTO(x, ""))
+					.collect(Collectors.toList());
+
+		case "storywriter":
+			return userRepository.findAllByStoryWriter(true).stream().map(x -> new UserDTO(x, ""))
+					.collect(Collectors.toList());
+		}
+		return userRepository.findAll().stream().filter(s -> !s.getBlogPost().isEmpty()).map(x -> new UserDTO(x, ""))
+				.collect(Collectors.toList());
 	}
-	
+
 	public List<Subscriber> getAllSubscriber() {
 		return subscriberRepository.findAll().stream().collect(Collectors.toList());
 	}
-	
+
 	public List<ContactUs> getAllContactUsRequest() {
 		return contactUsRepository.findAll().stream().collect(Collectors.toList());
 	}
 
+	public UserDTO postSiteReview(SiteReviewDTO siteReviewDTO) {
+		User user = getLoggedInUser();
+		if (Objects.isNull(user)) {
+			throw new UnprocessableEntityException("Please Login First to Submit review.");
+		}
+		validateSiteReview(siteReviewDTO);
+		SiteReview siteReview = new SiteReview(siteReviewDTO.getDescription());
+		user.setSiteReview(siteReview);
+		return new UserDTO(userRepository.save(user));
+	}
+
+	private void validateSiteReview(SiteReviewDTO siteReviewDTO) {
+		if (siteReviewDTO.getDescription().length() > 500) {
+			logger.info("Error in ValidateSiteReview: Maximum Limit reached for review.");
+			throw new UnprocessableEntityException("Maximum Limit reached for review.");
+		}
+	}
 
 }
