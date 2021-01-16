@@ -36,26 +36,33 @@ public class RecomandationBlog extends BaseEntity {
 	@Column(name = "id")
 	private Long id;
 
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "banner_id")
+	private File banner;
+	
 	@Column(name = "title", length = 100)
 	private String title;
 
-	@Column(name = "discription", length = 100000)
-	private String description;
+	@Column(name = "primary_discription", length = 180)
+	private String primaryDescription;
+	
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "recomandation_blog_id")
+	private List<File> files;
+	
+	@Column(name = "secondary_discription", length = 100000)
+	private String secondaryDescription;
 
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	private User user;
-
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "image_id")
-	private File image;
 
 	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "like_user_recommandation_blog", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "recomandation_blog_id", referencedColumnName = "id"))
 	private Set<User> likedBy;
 
-	@OneToMany(mappedBy = "recomandationBlog", cascade = CascadeType.ALL)
-	private List<Comment> comments;
+//	@OneToMany(mappedBy = "recomandationBlog", cascade = CascadeType.ALL)
+//	private List<Comment> comments;
 
 	@Column(name = "view")
 	private Long view;
@@ -67,7 +74,8 @@ public class RecomandationBlog extends BaseEntity {
 	public RecomandationBlog(RecomandationBlogDTO recomandationBlogDTO) {
 		this.id = recomandationBlogDTO.getId();
 		this.title = recomandationBlogDTO.getTitle();
-		this.description = recomandationBlogDTO.getDescription();
+		this.primaryDescription = recomandationBlogDTO.getPrimaryDescription();
+		this.secondaryDescription = recomandationBlogDTO.getSecondaryDescription();
 	}
 
 	public Long getId() {
@@ -78,6 +86,14 @@ public class RecomandationBlog extends BaseEntity {
 		this.id = id;
 	}
 
+	public File getBanner() {
+		return banner;
+	}
+
+	public void setBanner(File banner) {
+		this.banner = banner;
+	}
+
 	public String getTitle() {
 		return title;
 	}
@@ -86,12 +102,28 @@ public class RecomandationBlog extends BaseEntity {
 		this.title = title;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getPrimaryDescription() {
+		return primaryDescription;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setPrimaryDescription(String primaryDescription) {
+		this.primaryDescription = primaryDescription;
+	}
+
+	public List<File> getFiles() {
+		return files;
+	}
+
+	public void setFiles(List<File> files) {
+		this.files = files;
+	}
+
+	public String getSecondaryDescription() {
+		return secondaryDescription;
+	}
+
+	public void setSecondaryDescription(String secondaryDescription) {
+		this.secondaryDescription = secondaryDescription;
 	}
 
 	public User getUser() {
@@ -102,28 +134,12 @@ public class RecomandationBlog extends BaseEntity {
 		this.user = user;
 	}
 
-	public File getImage() {
-		return image;
-	}
-
-	public void setImage(File image) {
-		this.image = image;
-	}
-
 	public Set<User> getLikedBy() {
 		return likedBy;
 	}
 
 	public void setLikedBy(Set<User> likedBy) {
 		this.likedBy = likedBy;
-	}
-
-	public List<Comment> getComments() {
-		return comments;
-	}
-
-	public void setComments(List<Comment> comments) {
-		this.comments = comments;
 	}
 
 	public Long getView() {
@@ -133,5 +149,6 @@ public class RecomandationBlog extends BaseEntity {
 	public void setView(Long view) {
 		this.view = view;
 	}
+
 
 }

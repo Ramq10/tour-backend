@@ -5,6 +5,7 @@ package com.tour.services;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.tour.entity.File;
 import com.tour.entity.RecomandationBlog;
 import com.tour.entity.User;
 import com.tour.entity.dto.RecomandationBlogDTO;
@@ -52,10 +54,12 @@ public class RecomandationBlogService {
 			validateUser(recomandationBlog.getUser());
 			recomandationBlog.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
 			recomandationBlog.setTitle(recomandationBlogDTO.getTitle());
-			recomandationBlog.setDescription(recomandationBlogDTO.getDescription());
+			recomandationBlog.setPrimaryDescription(recomandationBlogDTO.getPrimaryDescription());
+			recomandationBlog.setSecondaryDescription(recomandationBlogDTO.getSecondaryDescription());
 		}
 		recomandationBlog.setUser(user);
-		recomandationBlog.setImage(fileService.getFileById(recomandationBlogDTO.getImageId()));
+		recomandationBlog.setBanner(fileService.getFileById(recomandationBlogDTO.getBannerId()));
+		recomandationBlog.setFiles(validateStoryFile(recomandationBlogDTO.getFiles()));
 
 		RecomandationBlogDTO blog = new RecomandationBlogDTO(recomandationBlogRepository.save(recomandationBlog));
 		logger.info("Completed RecomandationBlogService::save");
@@ -68,7 +72,11 @@ public class RecomandationBlogService {
 			logger.info("Please enter title.");
 			throw new UnprocessableEntityException("Please enter title.");
 		}
-		if (StringUtils.isBlank(recomandationBlogDTO.getDescription())) {
+		if (StringUtils.isBlank(recomandationBlogDTO.getPrimaryDescription())) {
+			logger.info("Please enter discription of your Blog.");
+			throw new UnprocessableEntityException("Please enter discription of your Blog.");
+		}
+		if (StringUtils.isBlank(recomandationBlogDTO.getSecondaryDescription())) {
 			logger.info("Please enter discription of your Blog.");
 			throw new UnprocessableEntityException("Please enter discription of your Blog.");
 		}
@@ -76,12 +84,28 @@ public class RecomandationBlogService {
 			logger.info("Title length exceeded.");
 			throw new UnprocessableEntityException("Title length exceeded.");
 		}
-		if (recomandationBlogDTO.getImageId() == null) {
+		if (recomandationBlogDTO.getBannerId() == null) {
+			logger.info("Please provide Banner-Image for your blog.");
+			throw new UnprocessableEntityException("Please provide Banner-Image for your blog.");
+		}
+		if (CollectionUtils.isEmpty(recomandationBlogDTO.getFiles())) {
 			logger.info("Please provide Image for your blog.");
 			throw new UnprocessableEntityException("Please provide Image for your blog.");
 		}
 		logger.info("Completed RecomandationBlogService::validate");
 
+	}
+	
+	/**
+	 * @param files
+	 * @return
+	 */
+	private List<File> validateStoryFile(List<File> files) {
+		List<File> storyFiles = new ArrayList<>();
+		files.stream().forEach(f -> {
+			storyFiles.add(fileService.getFileById(f.getId()));
+		});
+		return storyFiles;
 	}
 
 	public RecomandationBlog findById(Long id) {
@@ -95,7 +119,7 @@ public class RecomandationBlogService {
 	}
 
 	private void validateUser(User user) {
-		if (user.getId() != userService.getLoggedInUser().getId()) {
+		if (user.getId().equals(userService.getLoggedInUser().getId())) {
 			throw new UnprocessableEntityException("You are not allowed to edit this Recomandation Blog.");
 		}
 	}
@@ -126,6 +150,13 @@ public class RecomandationBlogService {
 		}
 		logger.info("Completed RecomandationBlogService::findById");
 		return new RecomandationBlogDTO(recomandationBlog.get());
+	}
+
+	public void deleteBlog(Long id) {
+		// TODO Auto-generated method stub
+//		this.findDTOById(id);
+		recomandationBlogRepository.deleteById(id);
+//		return null;
 	}
 
 }

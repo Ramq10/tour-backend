@@ -19,16 +19,17 @@ public class RecomandationBlogDTO {
 
 	private Long id;
 	private String title;
-	private String description;
+	private Long bannerId;
+	private String primaryDescription;
+	private List<File> files;
+	private String secondaryDescription;
 	private Long userId;
 	private String userName;
-	private File image;
-	private Long imageId;
 	private Set<UserDTO> likedBy;
 	private long likeCount;
-	private long commentCount;
+//	private long commentCount;
 	private LocalDate createDate;
-	private List<CommentDTO> comments;
+//	private List<CommentDTO> comments;
 	private Long view;
 
 	public RecomandationBlogDTO() {
@@ -36,13 +37,15 @@ public class RecomandationBlogDTO {
 
 	public RecomandationBlogDTO(RecomandationBlog recomandationBlog) {
 		this.id = recomandationBlog.getId();
-		this.description = recomandationBlog.getDescription();
+		this.primaryDescription = recomandationBlog.getPrimaryDescription();
+		this.secondaryDescription = recomandationBlog.getSecondaryDescription();
 		this.title = recomandationBlog.getTitle();
+		this.files = recomandationBlog.getFiles();
 		this.userId = recomandationBlog.getUser() != null ? recomandationBlog.getUser().getId() : null;
 		this.userName = recomandationBlog.getUser() != null ? recomandationBlog.getUser().getName() : "anonymous";
-		this.imageId = recomandationBlog.getImage().getId();
+		this.bannerId = recomandationBlog.getBanner().getId();
 		this.likeCount = recomandationBlog.getLikedBy() != null ? recomandationBlog.getLikedBy().size() : 0;
-		this.commentCount = recomandationBlog.getComments() != null ? recomandationBlog.getComments().size() : 0;
+//		this.commentCount = recomandationBlog.getComments() != null ? recomandationBlog.getComments().size() : 0;
 		this.likedBy = recomandationBlog.getLikedBy() != null
 				? recomandationBlog.getLikedBy().stream().map(t -> new UserDTO(t, "")).collect(Collectors.toSet())
 				: null;
@@ -66,12 +69,36 @@ public class RecomandationBlogDTO {
 		this.title = title;
 	}
 
-	public String getDescription() {
-		return description;
+	public Long getBannerId() {
+		return bannerId;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setBannerId(Long bannerId) {
+		this.bannerId = bannerId;
+	}
+
+	public String getPrimaryDescription() {
+		return primaryDescription;
+	}
+
+	public void setPrimaryDescription(String primaryDescription) {
+		this.primaryDescription = primaryDescription;
+	}
+
+	public List<File> getFiles() {
+		return files;
+	}
+
+	public void setFiles(List<File> files) {
+		this.files = files;
+	}
+
+	public String getSecondaryDescription() {
+		return secondaryDescription;
+	}
+
+	public void setSecondaryDescription(String secondaryDescription) {
+		this.secondaryDescription = secondaryDescription;
 	}
 
 	public Long getUserId() {
@@ -106,14 +133,6 @@ public class RecomandationBlogDTO {
 		this.likeCount = likeCount;
 	}
 
-	public long getCommentCount() {
-		return commentCount;
-	}
-
-	public void setCommentCount(long commentCount) {
-		this.commentCount = commentCount;
-	}
-
 	public LocalDate getCreateDate() {
 		return createDate;
 	}
@@ -122,36 +141,12 @@ public class RecomandationBlogDTO {
 		this.createDate = createDate;
 	}
 
-	public List<CommentDTO> getComments() {
-		return comments;
-	}
-
-	public void setComments(List<CommentDTO> comments) {
-		this.comments = comments;
-	}
-
 	public Long getView() {
 		return view;
 	}
 
 	public void setView(Long view) {
 		this.view = view;
-	}
-
-	public File getImage() {
-		return image;
-	}
-
-	public void setImage(File image) {
-		this.image = image;
-	}
-
-	public Long getImageId() {
-		return imageId;
-	}
-
-	public void setImageId(Long imageId) {
-		this.imageId = imageId;
 	}
 
 }
