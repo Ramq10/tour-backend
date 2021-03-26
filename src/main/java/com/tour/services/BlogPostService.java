@@ -163,13 +163,23 @@ public class BlogPostService {
 		if (blogPost == null || !blogPost.isPresent()) {
 			throw new UnprocessableEntityException("Invalid BlogPost.");
 		}
+		logger.info("Completed BlogPostService::getBlogDTOById");
+		return new BlogPostDTO(blogPost.get());
+	}
+	
+	public BlogPostDTO likeBlogById(Long id) {
+		logger.info("Inside BlogPostService::likeBlogById");
+		Optional<BlogPost> blogPost = blogPostRepository.findById(id);
+		if (blogPost == null || !blogPost.isPresent()) {
+			throw new UnprocessableEntityException("Invalid BlogPost.");
+		}
 		if (blogPost.get().getView() == null) {
 			blogPost.get().setView(0l);
 		}
 		Long view = blogPost.get().getView() + 1;
 		blogPost.get().setView(view);
 		blogPostRepository.save(blogPost.get());
-		logger.info("Completed BlogPostService::getBlogDTOById");
+		logger.info("Completed BlogPostService::likeBlogById");
 		return new BlogPostDTO(blogPost.get());
 	}
 

@@ -46,11 +46,10 @@ public class BlogPostController {
 
 	}
 	
-//	@GetMapping("/v-blog")
-//	public List<BlogPostDTO> getAllVideoBlog(
-//			@RequestParam(required = false) String sortedBy) {
-//		return blogPostService.getAllVideoBlogPost(sortedBy);
-//	}
+	@GetMapping("/blog/like/{id}")
+	public BlogPostDTO getAllVideoBlog(@PathVariable Long id) {
+		return blogPostService.likeBlogById(id);
+	}
 
 	@GetMapping("/blog-genre")
 	public List<String> getBlogGenre() {
