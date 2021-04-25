@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tour.entity.dto.AllBlogDataDTO;
 import com.tour.entity.dto.BlogPostDTO;
 import com.tour.entity.dto.SearchColumnDTO;
 import com.tour.services.BlogPostService;
@@ -40,7 +41,7 @@ public class BlogPostController {
 	}
 
 	@PostMapping("/all-blog")
-	public List<BlogPostDTO> getAllBlog(
+	public AllBlogDataDTO getAllBlog(
 			@RequestParam(required = false) String searchBy, @RequestBody(required = false) SearchColumnDTO searchColumnDTO,@RequestParam(required = false) boolean vlog) {
 		return blogPostService.filterBlogPost(searchBy, searchColumnDTO, vlog);
 

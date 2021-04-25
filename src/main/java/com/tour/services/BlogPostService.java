@@ -28,6 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +38,7 @@ import org.springframework.stereotype.Service;
 import com.tour.entity.BlogPost;
 import com.tour.entity.File;
 import com.tour.entity.User;
+import com.tour.entity.dto.AllBlogDataDTO;
 import com.tour.entity.dto.BlogPostDTO;
 import com.tour.entity.dto.SearchColumnDTO;
 import com.tour.enums.BlogGenres;
@@ -275,16 +279,19 @@ public class BlogPostService {
 		return blogs.stream().collect(Collectors.toList());
 	}
 
-	public List<BlogPostDTO> filterBlogPost(String searchBy,
+	public AllBlogDataDTO filterBlogPost(String searchBy,
 			SearchColumnDTO searchColumnDTO, boolean vlog) {
 		if (!StringUtils.isBlank(searchBy)) {
-			return searchByTitle(searchBy, vlog);
+			return new AllBlogDataDTO(searchByTitle(searchBy, vlog), 0);
 		}
 		if (searchColumnDTO != null) {
-			List<BlogPost> bg = blogPostRepository
-					.findAll(filterAllBlogPost(searchColumnDTO));
-			return bg.stream().map(BlogPostDTO::new)
-					.collect(Collectors.toList());
+			int pageNo = searchColumnDTO.getPageNo();
+			Pageable page = PageRequest.of(pageNo, 12);
+			Page<BlogPost> blogPages = blogPostRepository
+					.findAll(filterAllBlogPost(searchColumnDTO), page);
+			List<BlogPost> blogs = blogPages.getContent();
+			return new AllBlogDataDTO(blogs.stream().map(BlogPostDTO::new)
+					.collect(Collectors.toList()), blogPages.getTotalElements());
 		}
 		return null;
 	}

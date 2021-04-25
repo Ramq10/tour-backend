@@ -21,6 +21,7 @@ public class SearchColumnDTO {
 	private Boolean ascView;
 	private Boolean ascDate;
 	private Boolean vlog;
+	private int pageNo;
 	
 	public SearchColumnDTO() {
 		
@@ -104,6 +105,14 @@ public class SearchColumnDTO {
 
 	public void setVlog(Boolean vlog) {
 		this.vlog = vlog;
+	}
+
+	public int getPageNo() {
+		return pageNo;
+	}
+
+	public void setPageNo(int pageNo) {
+		this.pageNo = pageNo;
 	}
 
 }

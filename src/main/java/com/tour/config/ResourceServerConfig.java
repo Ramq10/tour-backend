@@ -45,7 +45,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 				.antMatchers("/**/all-blog/**").permitAll().antMatchers("/**/file/upload/").permitAll()
 				.antMatchers("/**/country/{id}").permitAll().antMatchers("/**/blog-genre/").permitAll()
 				.antMatchers("/**/subscribe/").permitAll().antMatchers("/**/all-story/tags/{id}").permitAll()
-				.antMatchers("/**/blog/{id}").permitAll()
+				.antMatchers("/**/blog/{id}").permitAll().antMatchers("/**/blog/like/{id}").permitAll()
 				.antMatchers("/**/tags/").permitAll().antMatchers("/**/story/{id}").permitAll().antMatchers("/**/v-blog/**").permitAll()
 				.antMatchers("/**/file/{id}").permitAll().antMatchers("/**/state/{id}").permitAll().antMatchers("/**/country").permitAll().anyRequest().authenticated();
 	}

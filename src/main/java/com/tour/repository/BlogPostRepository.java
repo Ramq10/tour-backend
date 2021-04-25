@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 //import com.brightlink.sidewinder.domain.DID;
@@ -18,7 +19,7 @@ import com.tour.enums.BlogGenres;
  *
  */
 @Repository
-public interface BlogPostRepository extends JpaRepository<BlogPost, Long>, JpaSpecificationExecutor<BlogPost> {
+public interface BlogPostRepository extends JpaRepository<BlogPost, Long>, JpaSpecificationExecutor<BlogPost>, PagingAndSortingRepository<BlogPost, Long> {
 	
 	public BlogPost findByUrl(String url);
 	
