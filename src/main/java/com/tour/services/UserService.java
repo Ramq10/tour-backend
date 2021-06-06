@@ -275,12 +275,12 @@ public class UserService {
 	 * @return
 	 */
 	public User getUserById(Long id) {
-		logger.info("Inside UserService::getUserById");
+//		logger.info("Inside UserService::getUserById");
 		Optional<User> user = userRepository.findById(id);
 		if (user == null || !user.isPresent()) {
 			throw new UnprocessableEntityException("Invalid User.");
 		}
-		logger.info("Completed UserService::getUserById");
+//		logger.info("Completed UserService::getUserById");
 		return user.get();
 
 	}

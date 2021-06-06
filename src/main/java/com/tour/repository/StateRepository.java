@@ -14,6 +14,8 @@ import com.tour.entity.State;
  */
 @Repository
 public interface StateRepository extends JpaRepository<State, Long> {
+
+	State findByName(String name);
 	
 
 }

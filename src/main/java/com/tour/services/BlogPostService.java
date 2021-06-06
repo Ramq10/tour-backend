@@ -36,7 +36,10 @@ import org.springframework.stereotype.Service;
 
 //import com.google.api.client.repackaged.com.google.common.base.Predicate;
 import com.tour.entity.BlogPost;
+import com.tour.entity.City;
+import com.tour.entity.Country;
 import com.tour.entity.File;
+import com.tour.entity.State;
 import com.tour.entity.User;
 import com.tour.entity.dto.AllBlogDataDTO;
 import com.tour.entity.dto.BlogPostDTO;
@@ -54,6 +57,8 @@ public class BlogPostService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@Autowired
+	private CountryService countryService;
 	@Autowired
 	private BlogPostRepository blogPostRepository;
 	@Autowired
@@ -95,7 +100,7 @@ public class BlogPostService {
 			validateUser(blogPostFromDB.getBlogger());
 			blogPostFromDB.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
 		}
-
+		blogPostFromDB = validateAndGetLocationData(blogPostFromDB, blogPostDTO);
 		blogPostFromDB.setUrl(blogPostDTO.getUrl());
 		if (!blogPostFromDB.getUrl().contains("http")) {
 			blogPostFromDB.setUrl("http://" + blogPostFromDB.getUrl());
@@ -116,6 +121,26 @@ public class BlogPostService {
 		}
 		authenticationService.updateUser(loggedInUser);
 		logger.info("Completed BlogPostService::saveOrUpdate");
+	}
+
+	private BlogPost validateAndGetLocationData(BlogPost blogPostFromDB, BlogPostDTO blogPostDTO) {
+		validateLocationForNull(blogPostDTO);
+		Country country = countryService.getCountryById(blogPostDTO.getCountryId());
+		State state = countryService.getStateById(blogPostDTO.getStateId());
+		if (blogPostDTO.getCityId() != null) {
+			City city = countryService.getCityById(blogPostDTO.getCityId());
+			blogPostFromDB.setCity(city);
+		}
+		blogPostFromDB.setCountry(country);
+		blogPostFromDB.setState(state);
+		return blogPostFromDB;
+	}
+
+	private void validateLocationForNull(BlogPostDTO blogPostDTO) {
+		if (blogPostDTO.getCountryId() == null || blogPostDTO.getStateId() == null) {
+			throw new UnprocessableEntityException("Please select valid Location.");
+		}
+		
 	}
 
 	// private List<HashTag> validateTags(List<HashTag> tags) {

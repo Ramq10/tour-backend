@@ -4,6 +4,7 @@
 package com.tour.services;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.tour.entity.City;
 import com.tour.entity.Country;
+import com.tour.entity.State;
+import com.tour.entity.dto.CityDTO;
+import com.tour.entity.dto.LocationDTO;
+import com.tour.entity.dto.StateDTO;
 import com.tour.exception.UnprocessableEntityException;
 import com.tour.repository.CityRepository;
 import com.tour.repository.CountryRepository;
@@ -23,25 +28,36 @@ import com.tour.repository.StateRepository;
 @Service
 public class CountryService {
 
-	@Autowired
 	private CountryRepository countryRepository;
-	@Autowired
 	private StateRepository stateRepository;
-	@Autowired
 	private CityRepository cityRepository;
 
-	public List<Country> getAllCountry() {
-		return countryRepository.findAll();
+	@Autowired
+	public CountryService(CountryRepository countryRepository, StateRepository stateRepository,
+			CityRepository cityRepository) {
+		this.countryRepository = countryRepository;
+		this.cityRepository = cityRepository;
+		this.stateRepository = stateRepository;
 	}
 
+	public List<Country> getAllCountry() {
+		return countryRepository.findAllByOrderByName();
+	}
+
+	/**
+	 * @param country
+	 */
 	public void saveCountry(Country country) {
-		if (StringUtils.isBlank(country.getName())) {
-			throw new UnprocessableEntityException("Please provide Country name.");
+		checkObjectForNull(country);
+		validateName(country.getName());
+		Country countryName;
+		if (country.getId() == null) {
+			countryName = new Country();
+		} else {
+			countryName = countryRepository.findById(country.getId()).get();
+			checkObjectForNull(countryName);
 		}
-		Country countryName = countryRepository.findByName(country.getName());
-		if (countryName != null && country.getId() == null) {
-			throw new UnprocessableEntityException("Country exists.");
-		}
+		countryName.setName(country.getName());
 		countryRepository.save(country);
 	}
 
@@ -53,12 +69,110 @@ public class CountryService {
 		countryRepository.deleteById(id);
 	}
 
-	public void saveCity(City city) {
+	/**
+	 * @param state
+	 */
+	public void saveState(StateDTO state) {
+		checkObjectForNull(state);
+		Country country = getCountryById(state.getCountryId());
+		checkObjectForNull(country);
+		validateName(state.getName());
+		State stateName;
+		if (state.getId() == null) {
+			stateName = new State();
+		} else {
+			stateName = stateRepository.findById(state.getId()).get();
+			checkObjectForNull(stateName);
+		}
+		stateName.setName(state.getName());
+		stateName = stateRepository.save(stateName);
+		List<State> states = country.getState();
+		if (!states.contains(stateName)) {
+			states.add(stateName);
+			country.setState(states);
+			countryRepository.save(country);
+		}
+	}
 
+	/**
+	 * @param city
+	 */
+	public void saveCity(CityDTO city) {
+		checkObjectForNull(city);
+		State state = getStateById(city.getStateId());
+		checkObjectForNull(state);
+		validateName(city.getName());
+		City cityName;
+		if (city.getId() == null) {
+			cityName = new City(null, city.getName());
+		} else {
+			cityName = cityRepository.findById(city.getId()).get();
+			checkObjectForNull(cityName);
+			cityName.setName(city.getName());
+		}
+		cityName = cityRepository.save(cityName);
+		List<City> cities = state.getCity();
+		if (!cities.contains(cityName)) {
+			cities.add(cityName);
+			state.setCity(cities);
+			stateRepository.save(state);
+		}
+	}
+
+	private void checkObjectForNull(Object cityName) {
+		if (Objects.isNull(cityName)) {
+			throw new UnprocessableEntityException("Please provide valid Id");
+		}
+	}
+
+	private void validateName(String name) {
+		if (StringUtils.isBlank(name)) {
+			throw new UnprocessableEntityException("Please provide city name.");
+		}
 	}
 
 	public Country getCountryById(Long id) {
 		return countryRepository.findById(id).get();
+	}
+	
+	public City getCityById(Long id) {
+		return cityRepository.findById(id).get();
+	}
+
+	public State getStateById(Long id) {
+		return stateRepository.findById(id).get();
+	}
+
+	/**
+	 * @param countries
+	 */
+	public void saveBulkCountry(List<Country> countries) {
+		countries.forEach(country -> {
+			saveCountry(country);
+		});
+	}
+
+	/**
+	 * @param states
+	 */
+	public void saveBulkState(List<StateDTO> states) {
+		states.forEach(state -> {
+			saveState(state);
+		});
+	}
+
+	/**
+	 * @param cities
+	 */
+	public void saveBulkCity(List<CityDTO> cities) {
+		cities.forEach(city -> {
+			saveCity(city);
+		});
+	}
+
+	public List<LocationDTO> searchLocation(String txt) {
+		List<LocationDTO> l = countryRepository.searchLocation(txt.toLowerCase());
+		return l;
 	}
 
 }

@@ -77,7 +77,7 @@ public class FileService {
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
 					.body(resource);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("Exception Occur: {}", e);
 		}
 		return null;
 	}

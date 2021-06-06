@@ -28,6 +28,12 @@ public class BlogPostDTO {
 	private List<HashTag> tags;
 	private boolean vBlog;
 	private LocalDate postedDate;
+	private Long countryId;
+	private String countryName;
+	private Long stateId;
+	private String stateName;
+	private Long cityId;
+	private String cityName;
 
 	public BlogPostDTO(BlogPost blogPost) {
 		this.id = blogPost.getId();
@@ -47,6 +53,12 @@ public class BlogPostDTO {
 		this.vBlog = blogPost.getvBlog();
 		this.postedDate = blogPost.getCreateDate();
 		this.view = blogPost.getView();
+		this.cityId = blogPost.getCity() != null ? blogPost.getCity().getId() : null;
+		this.cityName = blogPost.getCity() != null ? blogPost.getCity().getName() : null;
+		this.stateId = blogPost.getState() != null ? blogPost.getState().getId() : null;
+		this.stateName = blogPost.getState() != null ? blogPost.getState().getName() : null;
+		this.countryId = blogPost.getCountry() != null ? blogPost.getCountry().getId() : null;
+		this.countryName = blogPost.getCountry() != null ? blogPost.getCountry().getName() : null;
 //		this.setTags(blogPost.getTags());
 	}
 	
@@ -64,6 +76,12 @@ public class BlogPostDTO {
 		this.vBlog = blogPost.getvBlog();
 		this.postedDate = blogPost.getCreateDate();
 		this.view = blogPost.getView();
+		this.cityId = blogPost.getCity() != null ? blogPost.getCity().getId() : null;
+		this.cityName = blogPost.getCity() != null ? blogPost.getCity().getName() : null;
+		this.stateId = blogPost.getState() != null ? blogPost.getState().getId() : null;
+		this.stateName = blogPost.getState() != null ? blogPost.getState().getName() : null;
+		this.countryId = blogPost.getCountry() != null ? blogPost.getCountry().getId() : null;
+		this.countryName = blogPost.getCountry() != null ? blogPost.getCountry().getName() : null;
 	}
 
 
@@ -164,6 +182,54 @@ public class BlogPostDTO {
 
 	public void setTags(List<HashTag> tags) {
 		this.tags = tags;
+	}
+
+	public Long getCountryId() {
+		return countryId;
+	}
+
+	public String getCountryName() {
+		return countryName;
+	}
+
+	public Long getStateId() {
+		return stateId;
+	}
+
+	public String getStateName() {
+		return stateName;
+	}
+
+	public Long getCityId() {
+		return cityId;
+	}
+
+	public String getCityName() {
+		return cityName;
+	}
+
+	public void setCountryId(Long countryId) {
+		this.countryId = countryId;
+	}
+
+	public void setCountryName(String countryName) {
+		this.countryName = countryName;
+	}
+
+	public void setStateId(Long stateId) {
+		this.stateId = stateId;
+	}
+
+	public void setStateName(String stateName) {
+		this.stateName = stateName;
+	}
+
+	public void setCityId(Long cityId) {
+		this.cityId = cityId;
+	}
+
+	public void setCityName(String cityName) {
+		this.cityName = cityName;
 	}
 
 	@Override
