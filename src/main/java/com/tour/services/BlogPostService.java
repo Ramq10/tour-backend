@@ -152,8 +152,9 @@ public class BlogPostService {
 	// }
 
 	private void validateUser(User blogger) {
+		System.out.println(authenticationService.getLoggedInUser().getEmail());
 		if (blogger.getId() != authenticationService.getLoggedInUser()
-				.getId()) {
+				.getId() && !authenticationService.getLoggedInUser().getEmail().equals("admin@roverstrail.com")) {
 			throw new UnprocessableEntityException(
 					"You are not allowed to edit this blog.");
 		}

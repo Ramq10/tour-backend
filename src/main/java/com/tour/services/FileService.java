@@ -50,7 +50,7 @@ public class FileService {
 		try {
 			Files.createDirectories(this.fileStorageLocation);
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 
 	}
@@ -61,7 +61,7 @@ public class FileService {
 		try {
 			Files.copy(file.getInputStream(), targetLocation);
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		File storyFile = new File(null, fileName, targetLocation.toString());
 		return fileRepository.save(storyFile);
@@ -92,7 +92,7 @@ public class FileService {
 			}
 			return resource;
 		} catch (MalformedURLException ex) {
-			ex.printStackTrace();
+			System.out.println(ex.getMessage());
 		}
 		return null;
 	}

@@ -83,7 +83,7 @@ public class EmailSender {
 			logger.info("Inside try block");
 			helper = new MimeMessageHelper(message, true);
 			Context context = new Context();
-			final String url = "roverstrail.com/reset-password/"+to;
+			final String url = "roverstrail.com/member/reset-password/"+to;
 			context.setVariable("url", url);
 			String htmlContent = templateEngine.process("password-recovery-email.html", context);
 			helper.setTo(to);
