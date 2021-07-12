@@ -84,6 +84,8 @@ public class BlogPostService {
 			blogPostFromDB = new BlogPost(blogPostDTO);
 			blogPostFromDB.setCreateDate(LocalDate.now(ZoneOffset.UTC));
 			blogPostFromDB.setView(0L);
+			User loggedInUser = authenticationService.getLoggedInUser();
+			blogPostFromDB.setBlogger(loggedInUser);
 		} else {
 			blogPostFromDB = getBlogById(blogPostDTO.getId());
 			try {
@@ -105,14 +107,12 @@ public class BlogPostService {
 		if (!blogPostFromDB.getUrl().contains("http")) {
 			blogPostFromDB.setUrl("http://" + blogPostFromDB.getUrl());
 		}
-		User loggedInUser = authenticationService.getLoggedInUser();
-		blogPostFromDB.setBlogger(loggedInUser);
 		blogPostFromDB.setBlogImage(blogImage);
 
 		logger.info("BlogPostService::saveOrUpdate, blog post going to save.");
 		blogPostRepository.save(blogPostFromDB);
 		logger.info("BlogPostService::saveOrUpdate, blog post saved successfully.");
-
+		User loggedInUser = authenticationService.getLoggedInUser();
 		if (blogPostFromDB.getvBlog() == Boolean.TRUE && loggedInUser.getVlogger() != Boolean.TRUE) {
 			loggedInUser.setVlogger(true);
 		}
@@ -125,14 +125,15 @@ public class BlogPostService {
 
 	private BlogPost validateAndGetLocationData(BlogPost blogPostFromDB, BlogPostDTO blogPostDTO) {
 		validateLocationForNull(blogPostDTO);
+		City city = null;
 		Country country = countryService.getCountryById(blogPostDTO.getCountryId());
 		State state = countryService.getStateById(blogPostDTO.getStateId());
 		if (blogPostDTO.getCityId() != null) {
-			City city = countryService.getCityById(blogPostDTO.getCityId());
-			blogPostFromDB.setCity(city);
+			city = countryService.getCityById(blogPostDTO.getCityId());
 		}
 		blogPostFromDB.setCountry(country);
 		blogPostFromDB.setState(state);
+		blogPostFromDB.setCity(city);
 		return blogPostFromDB;
 	}
 
@@ -152,11 +153,12 @@ public class BlogPostService {
 	// }
 
 	private void validateUser(User blogger) {
-		System.out.println(authenticationService.getLoggedInUser().getEmail());
-		if (blogger.getId() != authenticationService.getLoggedInUser()
-				.getId() && !authenticationService.getLoggedInUser().getEmail().equals("admin@roverstrail.com")) {
-			throw new UnprocessableEntityException(
-					"You are not allowed to edit this blog.");
+		if (!authenticationService.getLoggedInUser().getEmail().equalsIgnoreCase("admin@roverstrail.com") ) {
+			if (blogger.getId() != authenticationService.getLoggedInUser()
+					.getId()) {
+				throw new UnprocessableEntityException(
+						"You are not allowed to edit this blog.");
+			}
 		}
 
 	}

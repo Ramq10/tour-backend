@@ -3,8 +3,12 @@
  */
 package com.tour.services;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +66,23 @@ public class CountryService {
 	}
 
 	public void deleteState(Long id) {
+		State state = getStateById(id);
+		if (state.getCity().size()>1) {
+			throw new UnprocessableEntityException("State cannot deleted. It have active cities");
+		}
 		stateRepository.deleteById(id);
 	}
 
 	public void deleteCountry(Long id) {
+		Country country = getCountryById(id);
+		if (country.getState().size()>1) {
+			throw new UnprocessableEntityException("Country cannot deleted. It have active states");
+		}
 		countryRepository.deleteById(id);
+	}
+	
+	public void deleteCity(Long id) {
+		cityRepository.deleteById(id);
 	}
 
 	/**
@@ -170,9 +186,14 @@ public class CountryService {
 		});
 	}
 
-	public List<LocationDTO> searchLocation(String txt) {
-		List<LocationDTO> l = countryRepository.searchLocation(txt.toLowerCase());
-		return l;
+	public Set<LocationDTO> searchLocation(String searchText) {
+		Set<LocationDTO> loc = new HashSet<>();
+		searchText = searchText.replaceAll(",", " ");
+		List<String> txts = Arrays.asList(searchText.split("\\s+"));
+		txts.forEach(s->{
+			loc.addAll(countryRepository.searchLocation(s.toLowerCase()).stream().collect(Collectors.toSet()));
+		});
+		return loc;
 	}
 
 }

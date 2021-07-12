@@ -4,6 +4,7 @@
 package com.tour.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -76,6 +77,11 @@ public class LocationController {
 	public void deleteCountry(@PathVariable Long id) {
 		countryService.deleteCountry(id);
 	}
+	
+	@DeleteMapping("/city/{id}")
+	public void deleteCity(@PathVariable Long id) {
+		countryService.deleteCity(id);
+	}
 
 	@GetMapping("/country/{id}")
 	public Country getCountryById(@PathVariable Long id) {
@@ -83,7 +89,7 @@ public class LocationController {
 	}
 	
 	@GetMapping("/location/")
-	public List<LocationDTO> searchLocation(@RequestParam String search) {
+	public Set<LocationDTO> searchLocation(@RequestParam String search) {
 		return countryService.searchLocation(search);
 	}
 

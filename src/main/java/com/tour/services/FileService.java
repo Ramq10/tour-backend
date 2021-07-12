@@ -76,8 +76,8 @@ public class FileService {
 							request.getServletContext().getMimeType(resource.getFile().getAbsolutePath())))
 					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
 					.body(resource);
-		} catch (IOException e) {
-			logger.info("Exception Occur: {}", e);
+		} catch (Exception e) {
+			logger.info("Exception Occur: {}", e.getMessage());
 		}
 		return null;
 	}
