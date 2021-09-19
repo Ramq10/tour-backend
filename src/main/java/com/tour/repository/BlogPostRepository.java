@@ -34,5 +34,6 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long>, JpaSp
 	public Long countByvBlog(boolean vBlog);
 	
 	public List<BlogPost> findByvBlogAndTitleContainingIgnoreCase(boolean vBlog, String title);
+	
 
 }

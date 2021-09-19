@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -40,7 +41,7 @@ public class BlogPost extends BaseEntity {
 	@Column(name = "url", length = 300)
 	private String url;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, fetch= FetchType.LAZY)
 	@JoinColumn(name = "blog_image")
 	private File blogImage;
 
@@ -48,7 +49,7 @@ public class BlogPost extends BaseEntity {
 	@JoinColumn(name = "blog_genre")
 	private BlogGenres blogGenre;
 
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne(cascade = CascadeType.PERSIST, fetch= FetchType.LAZY)
 	@JoinColumn(name = "candidate_id")
 	private User blogger;
 
@@ -64,19 +65,19 @@ public class BlogPost extends BaseEntity {
 	@Column(name = "vblog")
 	private Boolean vBlog;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL, fetch= FetchType.LAZY)
 	@JoinTable(name = "tag_blog_post", joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "blog_id", referencedColumnName = "id"))
 	private List<HashTag> tags;
 	
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne(cascade = CascadeType.PERSIST, fetch= FetchType.LAZY)
 	@JoinColumn(name = "country_id")
 	private Country country;
 	
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne(cascade = CascadeType.PERSIST, fetch= FetchType.LAZY)
 	@JoinColumn(name = "state_id")
 	private State state;
 	
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne(cascade = CascadeType.PERSIST, fetch= FetchType.LAZY)
 	@JoinColumn(name = "city_id")
 	private City city;
 

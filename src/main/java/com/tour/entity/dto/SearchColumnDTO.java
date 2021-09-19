@@ -6,7 +6,7 @@ package com.tour.entity.dto;
 import java.util.Set;
 
 /**
- * @author 91945
+ * @author Ramanand
  *
  */
 public class SearchColumnDTO {
@@ -16,6 +16,9 @@ public class SearchColumnDTO {
 	private String summery;
 	private String fromDate;
 	private String toDate;
+	private String country;
+	private String city;
+	private String state;
 	private Set<String> blogger;
 	private Set<String> genre;
 	private Boolean ascView;
@@ -25,6 +28,30 @@ public class SearchColumnDTO {
 	
 	public SearchColumnDTO() {
 		
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public void setState(String state) {
+		this.state = state;
 	}
 
 	public String getTitle() {

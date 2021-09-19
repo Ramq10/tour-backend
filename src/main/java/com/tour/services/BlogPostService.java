@@ -394,6 +394,21 @@ public class BlogPostService {
 									+ searchColumnDTO.getUrl().toLowerCase()
 									+ "%"));
 				}
+				
+				if (!StringUtils.isBlank(searchColumnDTO.getCountry())) {
+					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("country").get("name")),
+							"%" + searchColumnDTO.getCountry().toLowerCase() + "%"));
+				}
+				
+				if (!StringUtils.isBlank(searchColumnDTO.getState())) {
+					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("state").get("name")),
+							"%" + searchColumnDTO.getState().toLowerCase() + "%"));
+				}
+				
+				if (!StringUtils.isBlank(searchColumnDTO.getCity())) {
+					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("city").get("name")),
+							"%" + searchColumnDTO.getCity().toLowerCase() + "%"));
+				}
 
 				if (searchColumnDTO.getBlogger() != null
 						&& !searchColumnDTO.getBlogger().isEmpty()) {
