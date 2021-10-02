@@ -34,4 +34,17 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
 			+ "or lower(d.name) like %:search% "
 			+ "order by s.name, d.name")
 	public List<LocationDTO> searchLocation(@RequestParam(value = "search") String search);
+	
+	@Query(value = "select new com.tour.entity.dto.LocationDTO(c.name, c.id) "
+			+ "from Country c "
+			+ "where lower(c.name) like %:search% "
+			+ "order by c.name")
+	public List<LocationDTO> searchCountry(@RequestParam(value = "search") String search);
+	
+	@Query(value = "select new com.tour.entity.dto.LocationDTO(c.name, s.name, c.id, s.id) "
+			+ "from Country c left join c.state s "
+			+ "where lower(c.name) like %:search% "
+			+ "or lower(s.name) like %:search% "
+			+ "order by c.name, s.name")
+	public List<LocationDTO> searchState(@RequestParam(value = "search") String search);
 }

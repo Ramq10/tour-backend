@@ -39,6 +39,11 @@ public class BlogPostController {
 	public BlogPostDTO getBlogById(@PathVariable Long id) {
 		return blogPostService.getBlogDTOById(id);
 	}
+	
+	@GetMapping("/blog/latest")
+	public BlogPostDTO getLatestBlog() {
+		return blogPostService.getLatestBlog();
+	}
 
 	@PostMapping("/all-blog")
 	public AllBlogDataDTO getAllBlog(

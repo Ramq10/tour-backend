@@ -26,6 +26,20 @@ public class LocationDTO {
 		this.stateId = stateId;
 		this.cityId = cityId;
 	}
+	
+	public LocationDTO(String countryName, String stateName, Long countryId, Long stateId) {
+		super();
+		this.countryName = countryName;
+		this.stateName = stateName;
+		this.countryId = countryId;
+		this.stateId = stateId;
+	}
+	
+	public LocationDTO(String countryName, Long countryId) {
+		super();
+		this.countryName = countryName;
+		this.countryId = countryId;
+	}
 
 
 	public String getCountryName() {

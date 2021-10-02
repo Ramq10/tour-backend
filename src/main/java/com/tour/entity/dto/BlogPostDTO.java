@@ -71,8 +71,8 @@ public class BlogPostDTO {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		this.title = blogPost.getTitle();
-		this.summery = blogPost.getSummery();
+//		this.title = blogPost.getTitle();
+//		this.summery = blogPost.getSummery();
 		this.vBlog = blogPost.getvBlog();
 		this.postedDate = blogPost.getCreateDate();
 		this.view = blogPost.getView();

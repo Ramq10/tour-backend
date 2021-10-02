@@ -3,8 +3,9 @@
  */
 package com.tour.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class CountryService {
 
 	public void deleteState(Long id) {
 		State state = getStateById(id);
-		if (state.getCity().size()>1) {
+		if (state.getCity().size() > 1) {
 			throw new UnprocessableEntityException("State cannot deleted. It have active cities");
 		}
 		stateRepository.deleteById(id);
@@ -75,12 +76,12 @@ public class CountryService {
 
 	public void deleteCountry(Long id) {
 		Country country = getCountryById(id);
-		if (country.getState().size()>1) {
+		if (country.getState().size() > 1) {
 			throw new UnprocessableEntityException("Country cannot deleted. It have active states");
 		}
 		countryRepository.deleteById(id);
 	}
-	
+
 	public void deleteCity(Long id) {
 		cityRepository.deleteById(id);
 	}
@@ -150,7 +151,7 @@ public class CountryService {
 	public Country getCountryById(Long id) {
 		return countryRepository.findById(id).get();
 	}
-	
+
 	public City getCityById(Long id) {
 		return cityRepository.findById(id).get();
 	}
@@ -187,11 +188,17 @@ public class CountryService {
 	}
 
 	public Set<LocationDTO> searchLocation(String searchText) {
-		Set<LocationDTO> loc = new HashSet<>();
+		Set<LocationDTO> loc = new LinkedHashSet<>();
 		searchText = searchText.replaceAll(",", " ");
-		List<String> txts = Arrays.asList(searchText.split("\\s+"));
-		txts.forEach(s->{
-			loc.addAll(countryRepository.searchLocation(s.toLowerCase()).stream().collect(Collectors.toSet()));
+		List<String> txts = new ArrayList<>(Arrays.asList(searchText.split("\\s+")));
+//		txts.add(searchText);
+		loc.addAll(countryRepository.searchCountry(searchText.toLowerCase()).stream().collect(Collectors.toSet()));
+		loc.addAll(countryRepository.searchState(searchText.toLowerCase()).stream().collect(Collectors.toSet()));
+		loc.addAll(countryRepository.searchLocation(searchText.toLowerCase()).stream().collect(Collectors.toSet()));
+		txts.forEach(t -> {
+			loc.addAll(countryRepository.searchCountry(t.toLowerCase()).stream().collect(Collectors.toSet()));
+			loc.addAll(countryRepository.searchState(t.toLowerCase()).stream().collect(Collectors.toSet()));
+			loc.addAll(countryRepository.searchLocation(t.toLowerCase()).stream().collect(Collectors.toSet()));
 		});
 		return loc;
 	}

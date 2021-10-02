@@ -49,7 +49,7 @@ import com.tour.exception.UnprocessableEntityException;
 import com.tour.repository.BlogPostRepository;
 
 /**
- * @author 91945
+ * @author Ramanand
  *
  */
 @Service
@@ -89,15 +89,12 @@ public class BlogPostService {
 		} else {
 			blogPostFromDB = getBlogById(blogPostDTO.getId());
 			try {
-				blogPostFromDB.setTitle(new String(blogPostDTO.getTitle()
-						.getBytes("UTF-8"), "ISO-8859-1"));
-				blogPostFromDB.setSummery(new String(blogPostDTO.getSummery()
-						.getBytes("UTF-8"), "ISO-8859-1"));
+				blogPostFromDB.setTitle(new String(blogPostDTO.getTitle().getBytes("UTF-8"), "ISO-8859-1"));
+				blogPostFromDB.setSummery(new String(blogPostDTO.getSummery().getBytes("UTF-8"), "ISO-8859-1"));
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-			blogPostFromDB.setBlogGenre(BlogGenres.getEnum(blogPostDTO
-					.getBlogGenre()));
+			blogPostFromDB.setBlogGenre(BlogGenres.getEnum(blogPostDTO.getBlogGenre()));
 			blogPostFromDB.setvBlog(blogPostDTO.isvBlog());
 			validateUser(blogPostFromDB.getBlogger());
 			blogPostFromDB.setModifiedDate(LocalDate.now(ZoneOffset.UTC));
@@ -126,38 +123,31 @@ public class BlogPostService {
 	private BlogPost validateAndGetLocationData(BlogPost blogPostFromDB, BlogPostDTO blogPostDTO) {
 		validateLocationForNull(blogPostDTO);
 		City city = null;
+		State state = null;
 		Country country = countryService.getCountryById(blogPostDTO.getCountryId());
-		State state = countryService.getStateById(blogPostDTO.getStateId());
+		if (blogPostDTO.getStateId() != null) {
+			state = countryService.getStateById(blogPostDTO.getStateId());
+			blogPostFromDB.setState(state);
+		}
 		if (blogPostDTO.getCityId() != null) {
 			city = countryService.getCityById(blogPostDTO.getCityId());
+			blogPostFromDB.setCity(city);
 		}
 		blogPostFromDB.setCountry(country);
-		blogPostFromDB.setState(state);
-		blogPostFromDB.setCity(city);
 		return blogPostFromDB;
 	}
 
 	private void validateLocationForNull(BlogPostDTO blogPostDTO) {
-		if (blogPostDTO.getCountryId() == null || blogPostDTO.getStateId() == null) {
+		if (blogPostDTO.getCountryId() == null) {
 			throw new UnprocessableEntityException("Please select valid Location.");
 		}
-		
+
 	}
 
-	// private List<HashTag> validateTags(List<HashTag> tags) {
-	// List<HashTag> hashTags = new ArrayList<HashTag>();
-	// tags.stream().forEach(f -> {
-	// hashTags.add(hashTagRepository.findById(f.getId()).get());
-	// });
-	// return hashTags;
-	// }
-
 	private void validateUser(User blogger) {
-		if (!authenticationService.getLoggedInUser().getEmail().equalsIgnoreCase("admin@roverstrail.com") ) {
-			if (blogger.getId() != authenticationService.getLoggedInUser()
-					.getId()) {
-				throw new UnprocessableEntityException(
-						"You are not allowed to edit this blog.");
+		if (!authenticationService.getLoggedInUser().getEmail().equalsIgnoreCase("admin@roverstrail.com")) {
+			if (blogger.getId() != authenticationService.getLoggedInUser().getId()) {
+				throw new UnprocessableEntityException("You are not allowed to edit this blog.");
 			}
 		}
 
@@ -182,11 +172,16 @@ public class BlogPostService {
 		if (blogPost == null || !blogPost.isPresent()) {
 			throw new UnprocessableEntityException("Invalid BlogPost.");
 		}
-		// Long view = blogPost.get().getView() + 1;
-		// blogPost.get().setView(view);
-		// blogPostRepository.save(blogPost.get());
 		logger.info("Completed BlogPostService::getBlogById");
 		return blogPost.get();
+	}
+
+	public BlogPostDTO getLatestBlog() {
+		BlogPost blogPost = blogPostRepository.findFirstByOrderByIdDesc();
+		if (blogPost == null) {
+			throw new UnprocessableEntityException("Invalid BlogPost.");
+		}
+		return new BlogPostDTO(blogPost, null);
 	}
 
 	public BlogPostDTO getBlogDTOById(Long id) {
@@ -198,7 +193,7 @@ public class BlogPostService {
 		logger.info("Completed BlogPostService::getBlogDTOById");
 		return new BlogPostDTO(blogPost.get());
 	}
-	
+
 	public BlogPostDTO likeBlogById(Long id) {
 		logger.info("Inside BlogPostService::likeBlogById");
 		Optional<BlogPost> blogPost = blogPostRepository.findById(id);
@@ -261,18 +256,14 @@ public class BlogPostService {
 
 	public List<BlogPostDTO> findAllByBlogGenre(String value) {
 		BlogGenres blogGenre = BlogGenres.getEnum(value);
-		return blogPostRepository
-				.findByvBlogAndBlogGenreOrderByCreateDateDesc(false, blogGenre)
-				.stream().map(b -> new BlogPostDTO(b))
-				.collect(Collectors.toList());
+		return blogPostRepository.findByvBlogAndBlogGenreOrderByCreateDateDesc(false, blogGenre).stream()
+				.map(b -> new BlogPostDTO(b)).collect(Collectors.toList());
 	}
 
 	public List<BlogPostDTO> findVlogByBlogGenre(String value) {
 		BlogGenres blogGenre = BlogGenres.getEnum(value);
-		return blogPostRepository
-				.findByvBlogAndBlogGenreOrderByCreateDateDesc(true, blogGenre)
-				.stream().map(b -> new BlogPostDTO(b))
-				.collect(Collectors.toList());
+		return blogPostRepository.findByvBlogAndBlogGenreOrderByCreateDateDesc(true, blogGenre).stream()
+				.map(b -> new BlogPostDTO(b)).collect(Collectors.toList());
 
 	}
 
@@ -283,8 +274,7 @@ public class BlogPostService {
 		logger.info("Inside BlogPostService::getAllBlogByLoggedInUser");
 		User user = authenticationService.getLoggedInUser();
 		if (!user.getBlogPost().isEmpty()) {
-			return user.getBlogPost().stream().map(v -> new BlogPostDTO(v, ""))
-					.collect(Collectors.toList());
+			return user.getBlogPost().stream().map(v -> new BlogPostDTO(v, "")).collect(Collectors.toList());
 		}
 		logger.info("Completed BlogPostService::getAllBlogByLoggedInUser");
 		return null;
@@ -297,63 +287,52 @@ public class BlogPostService {
 		Collections.addAll(substring, s);
 		for (int i = 0; i < substring.size(); i++) {
 			if (substring.get(i).length() > 2) {
-				List<BlogPost> localResult = blogPostRepository
-						.findByvBlogAndTitleContainingIgnoreCase(vlog,
-								substring.get(i));
-				blogs.addAll(localResult.stream().map(BlogPostDTO::new)
-						.collect(Collectors.toSet()));
+				List<BlogPost> localResult = blogPostRepository.findByvBlogAndTitleContainingIgnoreCase(vlog,
+						substring.get(i));
+				blogs.addAll(localResult.stream().map(BlogPostDTO::new).collect(Collectors.toSet()));
 			}
 		}
 		return blogs.stream().collect(Collectors.toList());
 	}
 
-	public AllBlogDataDTO filterBlogPost(String searchBy,
-			SearchColumnDTO searchColumnDTO, boolean vlog) {
+	public AllBlogDataDTO filterBlogPost(String searchBy, SearchColumnDTO searchColumnDTO, boolean vlog) {
 		if (!StringUtils.isBlank(searchBy)) {
 			return new AllBlogDataDTO(searchByTitle(searchBy, vlog), 0);
 		}
 		if (searchColumnDTO != null) {
 			int pageNo = searchColumnDTO.getPageNo();
 			Pageable page = PageRequest.of(pageNo, 12);
-			Page<BlogPost> blogPages = blogPostRepository
-					.findAll(filterAllBlogPost(searchColumnDTO), page);
+			Page<BlogPost> blogPages = blogPostRepository.findAll(filterAllBlogPost(searchColumnDTO), page);
 			List<BlogPost> blogs = blogPages.getContent();
-			return new AllBlogDataDTO(blogs.stream().map(BlogPostDTO::new)
-					.collect(Collectors.toList()), blogPages.getTotalElements());
+			return new AllBlogDataDTO(blogs.stream().map(BlogPostDTO::new).collect(Collectors.toList()),
+					blogPages.getTotalElements());
 		}
 		return null;
 	}
 
-	public Specification<BlogPost> filterAllBlogPost(
-			SearchColumnDTO searchColumnDTO) {
+	public Specification<BlogPost> filterAllBlogPost(SearchColumnDTO searchColumnDTO) {
 
 		logger.info("Starting Process For Creating Specification.");
 		return new Specification<BlogPost>() {
 			@Override
-			public Predicate toPredicate(Root<BlogPost> root,
-					CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			public Predicate toPredicate(Root<BlogPost> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 				query.orderBy(criteriaBuilder.asc(root.get("id")));
 				List<Predicate> predicates = new ArrayList<>();
 
 				if (searchColumnDTO.getVlog() != null) {
 					if (searchColumnDTO.getVlog()) {
-						predicates.add(criteriaBuilder.equal(root.get("vBlog"),
-								searchColumnDTO.getVlog()));
+						predicates.add(criteriaBuilder.equal(root.get("vBlog"), searchColumnDTO.getVlog()));
 					} else if (!searchColumnDTO.getVlog()) {
-						predicates.add(criteriaBuilder.equal(root.get("vBlog"),
-								searchColumnDTO.getVlog()));
+						predicates.add(criteriaBuilder.equal(root.get("vBlog"), searchColumnDTO.getVlog()));
 					}
 				}
 
 				if (!StringUtils.isBlank(searchColumnDTO.getTitle())) {
-					predicates.add(criteriaBuilder.like(
-							criteriaBuilder.lower(root.get("title")), "%"
-									+ searchColumnDTO.getTitle().toLowerCase()
-									+ "%"));
+					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("title")),
+							"%" + searchColumnDTO.getTitle().toLowerCase() + "%"));
 				}
 
-				if (searchColumnDTO.getGenre() != null
-						&& !searchColumnDTO.getGenre().isEmpty()) {
+				if (searchColumnDTO.getGenre() != null && !searchColumnDTO.getGenre().isEmpty()) {
 					Set<BlogGenres> genres = new HashSet<>();
 					for (String s : searchColumnDTO.getGenre()) {
 						BlogGenres blogGenre = BlogGenres.getEnum(s);
@@ -373,60 +352,48 @@ public class BlogPostService {
 
 				if (searchColumnDTO.getAscDate() != null) {
 					if (searchColumnDTO.getAscDate()) {
-						query.orderBy(criteriaBuilder.asc(root
-								.get("createDate")));
+						query.orderBy(criteriaBuilder.asc(root.get("createDate")));
 					} else if (!searchColumnDTO.getAscDate()) {
-						query.orderBy(criteriaBuilder.desc(root
-								.get("createDate")));
+						query.orderBy(criteriaBuilder.desc(root.get("createDate")));
 					}
 				}
 
 				if (!StringUtils.isBlank(searchColumnDTO.getSummery())) {
-					predicates.add(criteriaBuilder.like(
-							criteriaBuilder.lower(root.get("summery")), "%"
-									+ searchColumnDTO.getSummery()
-											.toLowerCase() + "%"));
+					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("summery")),
+							"%" + searchColumnDTO.getSummery().toLowerCase() + "%"));
 				}
 
 				if (!StringUtils.isBlank(searchColumnDTO.getUrl())) {
-					predicates.add(criteriaBuilder.like(
-							criteriaBuilder.lower(root.get("url")), "%"
-									+ searchColumnDTO.getUrl().toLowerCase()
-									+ "%"));
+					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("url")),
+							"%" + searchColumnDTO.getUrl().toLowerCase() + "%"));
 				}
-				
+
 				if (!StringUtils.isBlank(searchColumnDTO.getCountry())) {
 					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("country").get("name")),
 							"%" + searchColumnDTO.getCountry().toLowerCase() + "%"));
 				}
-				
+
 				if (!StringUtils.isBlank(searchColumnDTO.getState())) {
 					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("state").get("name")),
 							"%" + searchColumnDTO.getState().toLowerCase() + "%"));
 				}
-				
+
 				if (!StringUtils.isBlank(searchColumnDTO.getCity())) {
 					predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("city").get("name")),
 							"%" + searchColumnDTO.getCity().toLowerCase() + "%"));
 				}
 
-				if (searchColumnDTO.getBlogger() != null
-						&& !searchColumnDTO.getBlogger().isEmpty()) {
-					predicates.add(root.get("blogger").get("name")
-							.in(searchColumnDTO.getBlogger()));
+				if (searchColumnDTO.getBlogger() != null && !searchColumnDTO.getBlogger().isEmpty()) {
+					predicates.add(root.get("blogger").get("name").in(searchColumnDTO.getBlogger()));
 				}
 
 				if (!StringUtils.isBlank(searchColumnDTO.getToDate())
 						&& !StringUtils.isBlank(searchColumnDTO.getFromDate())) {
-					LocalDate startDate = LocalDate.parse(searchColumnDTO
-							.getFromDate());
-					LocalDate endDate = LocalDate.parse(searchColumnDTO
-							.getToDate());
-					predicates.add(criteriaBuilder.between(
-							root.get("createDate"), startDate, endDate));
+					LocalDate startDate = LocalDate.parse(searchColumnDTO.getFromDate());
+					LocalDate endDate = LocalDate.parse(searchColumnDTO.getToDate());
+					predicates.add(criteriaBuilder.between(root.get("createDate"), startDate, endDate));
 				}
-				return criteriaBuilder.and(criteriaBuilder.and(predicates
-						.toArray(new Predicate[predicates.size()])));
+				return criteriaBuilder.and(criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()])));
 			}
 		};
 	}
