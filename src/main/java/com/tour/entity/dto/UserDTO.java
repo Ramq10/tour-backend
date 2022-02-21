@@ -5,6 +5,7 @@ package com.tour.entity.dto;
 
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tour.entity.SocialSiteLink;
 import com.tour.entity.User;
 
@@ -12,6 +13,7 @@ import com.tour.entity.User;
  * @author Ramanand
  *
  */
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class UserDTO {
 
 	private Long id;
@@ -35,6 +37,7 @@ public class UserDTO {
 	private Integer vlogPostCount;
 	private Integer storyCount;
 	private String siteReviewDescripion;
+	private String bio;
 
 	public UserDTO(User user) {
 		this.id = user.getId();
@@ -60,15 +63,31 @@ public class UserDTO {
 		this.instaLink = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getInstaLink() : "";
 		this.socialSiteLinkId = user.getSocialSiteLink() != null ? user.getSocialSiteLink().getId() : null;
 		this.siteReviewDescripion = user.getSiteReview() != null ? user.getSiteReview().getDescription() : null;
+		this.bio = user.getBio();
 	}
 
 	public UserDTO(User user, String s) {
 		this.id = user.getId();
 		this.name = user.getName();
-		this.email = user.getEmail();
+		this.profilePhotoId = user.getProfilePhoto() != null ? user.getProfilePhoto().getId() : null;
 		this.countryName = user.getCountry() != null ? user.getCountry().getName() : null;
 	}
 
+	public UserDTO(User user, boolean b) {
+		this.id = user.getId();
+		this.name = user.getName();
+		this.gender = user.getGender().getType();
+		this.bio = user.getBio();
+		this.hobby = user.getHobby().getType();
+		this.profilePhotoId = user.getProfilePhoto() != null ? user.getProfilePhoto().getId() : null;
+		this.setBlogPostCount(user.getBlogPost() != null
+				? user.getBlogPost().stream().filter(x -> !x.getvBlog()).collect(Collectors.toList()).size()
+				: 0);
+		this.setVlogPostCount(user.getBlogPost() != null
+				? user.getBlogPost().stream().filter(x -> x.getvBlog()).collect(Collectors.toList()).size()
+				: 0);
+		this.countryName = user.getCountry() != null ? user.getCountry().getName() : null;
+	}
 	public UserDTO() {
 
 	}
@@ -239,6 +258,14 @@ public class UserDTO {
 
 	public void setSiteReviewDescripion(String siteReviewDescripion) {
 		this.siteReviewDescripion = siteReviewDescripion;
+	}
+
+	public String getBio() {
+		return bio;
+	}
+
+	public void setBio(String bio) {
+		this.bio = bio;
 	}
 
 }

@@ -17,16 +17,21 @@ import com.tour.entity.User;
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-	
+
 	Optional<User> findById(Long id);
-	
+
 	User findByEmail(String email);
-	
+
 	List<User> findAllByOrderByIdDesc();
-	
+
+//	for dropdown
 	List<User> findAllByBlogger(boolean blogger);
-	
+
+//  for dropdown
 	List<User> findAllByVlogger(boolean vlogger);
-	
+
+// for dropdown
 	List<User> findAllByStoryWriter(boolean storyWriter);
+
+	List<User> findAllByOrderByIdAsc();
 }

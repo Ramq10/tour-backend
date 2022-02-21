@@ -92,5 +92,12 @@ public class LocationController {
 	public Set<LocationDTO> searchLocation(@RequestParam String search) {
 		return countryService.searchLocation(search);
 	}
+	
+	@GetMapping("/location/blog/count")
+	public Set<LocationDTO> searchAllLocationWithBlogCount(@RequestParam(required = false) boolean vlog, @RequestParam(required = false) Long limit) {
+		return countryService.getAllLocationWithBlogCount(vlog, limit);
+	}
+	
+	
 
 }

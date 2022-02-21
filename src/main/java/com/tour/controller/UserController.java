@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tour.entity.ContactUs;
 import com.tour.entity.Subscriber;
+import com.tour.entity.dto.BlogPostDTO;
 import com.tour.entity.dto.SiteReviewDTO;
+import com.tour.entity.dto.TravelStoryDTO;
 import com.tour.entity.dto.UserDTO;
 import com.tour.services.UserService;
 
@@ -73,8 +75,8 @@ public class UserController {
 	}
 
 	@GetMapping("/all-users")
-	public List<UserDTO> getAllUsers() {
-		return userService.getAllUsers();
+	public List<UserDTO> getAllUsers(@RequestParam(required = false) String limit, @RequestParam(required = false) boolean blogger) {
+		return userService.getAllUsers(limit, blogger);
 	}
 
 	@GetMapping("/all-user")
@@ -95,5 +97,15 @@ public class UserController {
 	@PostMapping("/review")
 	public UserDTO saveOrUpdateReview(@RequestBody SiteReviewDTO reviewDTO) {
 		return userService.postSiteReview(reviewDTO);
+	}
+	
+	@GetMapping("/user/blog-post/{userId}")
+	public List<BlogPostDTO> getAllBlogByUser(@PathVariable Long userId) {
+		return userService.getAllBlogByUser(userId);
+	}
+	
+	@GetMapping("/user/story/{userId}")
+	public List<TravelStoryDTO> getAllStoryByUser(@PathVariable Long userId) {
+		return userService.getAllStoryById(userId);
 	}
 }

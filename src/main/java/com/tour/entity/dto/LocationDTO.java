@@ -1,7 +1,9 @@
 package com.tour.entity.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tour.entity.Country;
 
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class LocationDTO {
 
 	private String countryName;
@@ -10,9 +12,16 @@ public class LocationDTO {
 	private Long countryId;
 	private Long stateId;
 	private Long cityId;
+	private Long blogCount;
 	
 	public LocationDTO(Country c) {
 		// TODO Auto-generated constructor stub
+	}
+	
+	public LocationDTO(Country c, Long count) {
+		this.countryName = c.getName();
+		this.countryId = c.getId();
+		this.blogCount = count;
 	}
 	
 	
@@ -134,6 +143,14 @@ public class LocationDTO {
 		} else if (!stateName.equals(other.stateName))
 			return false;
 		return true;
+	}
+
+	public Long getBlogCount() {
+		return blogCount;
+	}
+
+	public void setBlogCount(Long blogCount) {
+		this.blogCount = blogCount;
 	}
 	
 	

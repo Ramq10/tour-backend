@@ -6,6 +6,7 @@ package com.tour.services;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,9 @@ import com.tour.entity.SocialSiteLink;
 import com.tour.entity.State;
 import com.tour.entity.Subscriber;
 import com.tour.entity.User;
+import com.tour.entity.dto.BlogPostDTO;
 import com.tour.entity.dto.SiteReviewDTO;
+import com.tour.entity.dto.TravelStoryDTO;
 import com.tour.entity.dto.UserDTO;
 import com.tour.enums.Hobby;
 import com.tour.exception.UnprocessableEntityException;
@@ -275,12 +278,10 @@ public class UserService {
 	 * @return
 	 */
 	public User getUserById(Long id) {
-//		logger.info("Inside UserService::getUserById");
 		Optional<User> user = userRepository.findById(id);
 		if (user == null || !user.isPresent()) {
 			throw new UnprocessableEntityException("Invalid User.");
 		}
-//		logger.info("Completed UserService::getUserById");
 		return user.get();
 
 	}
@@ -359,8 +360,20 @@ public class UserService {
 
 	}
 
-	public List<UserDTO> getAllUsers() {
-		return userRepository.findAllByOrderByIdDesc().stream().map(UserDTO::new).collect(Collectors.toList());
+	public List<UserDTO> getAllUsers(String limit, boolean blogger) {
+		if (StringUtils.isBlank(limit)) {
+			return userRepository.findAllByOrderByIdDesc().stream().map(UserDTO::new).collect(Collectors.toList());
+		} else {
+			if (blogger) {
+				return userRepository.findAllByBlogger(true).stream().map(x -> new UserDTO(x, Boolean.FALSE))
+						.sorted(Comparator.comparingInt(UserDTO::getBlogPostCount).reversed())
+						.limit(Long.parseLong(limit)).collect(Collectors.toList());
+			} else {
+				return userRepository.findAllByBlogger(false).stream().map(x -> new UserDTO(x, Boolean.FALSE))
+						.sorted(Comparator.comparingInt(UserDTO::getVlogPostCount).reversed())
+						.limit(Long.parseLong(limit)).collect(Collectors.toList());
+			}
+		}
 	}
 
 	public List<UserDTO> getAllUser(String param) {
@@ -405,6 +418,16 @@ public class UserService {
 			logger.info("Error in ValidateSiteReview: Maximum Limit reached for review.");
 			throw new UnprocessableEntityException("Maximum Limit reached for review.");
 		}
+	}
+
+	public List<BlogPostDTO> getAllBlogByUser(Long userId) {
+		User user = getUserById(userId);
+		return user.getBlogPost().stream().map(BlogPostDTO::new).collect(Collectors.toList());
+	}
+
+	public List<TravelStoryDTO> getAllStoryById(Long userId) {
+		User user = getUserById(userId);
+		return user.getStory().stream().map(TravelStoryDTO::new).collect(Collectors.toList());
 	}
 
 }

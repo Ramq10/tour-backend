@@ -264,7 +264,6 @@ public class BlogPostService {
 		BlogGenres blogGenre = BlogGenres.getEnum(value);
 		return blogPostRepository.findByvBlogAndBlogGenreOrderByCreateDateDesc(true, blogGenre).stream()
 				.map(b -> new BlogPostDTO(b)).collect(Collectors.toList());
-
 	}
 
 	@PersistenceContext

@@ -5,6 +5,7 @@ package com.tour.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +23,7 @@ import com.tour.entity.dto.CityDTO;
 import com.tour.entity.dto.LocationDTO;
 import com.tour.entity.dto.StateDTO;
 import com.tour.exception.UnprocessableEntityException;
+import com.tour.repository.BlogPostRepository;
 import com.tour.repository.CityRepository;
 import com.tour.repository.CountryRepository;
 import com.tour.repository.StateRepository;
@@ -36,13 +38,15 @@ public class CountryService {
 	private CountryRepository countryRepository;
 	private StateRepository stateRepository;
 	private CityRepository cityRepository;
+	private BlogPostRepository blogPostRepository; 
 
 	@Autowired
 	public CountryService(CountryRepository countryRepository, StateRepository stateRepository,
-			CityRepository cityRepository) {
+			CityRepository cityRepository, BlogPostRepository blogPostRepository) {
 		this.countryRepository = countryRepository;
 		this.cityRepository = cityRepository;
 		this.stateRepository = stateRepository;
+		this.blogPostRepository = blogPostRepository;
 	}
 
 	public List<Country> getAllCountry() {
@@ -191,7 +195,6 @@ public class CountryService {
 		Set<LocationDTO> loc = new LinkedHashSet<>();
 		searchText = searchText.replaceAll(",", " ");
 		List<String> txts = new ArrayList<>(Arrays.asList(searchText.split("\\s+")));
-//		txts.add(searchText);
 		loc.addAll(countryRepository.searchCountry(searchText.toLowerCase()).stream().collect(Collectors.toSet()));
 		loc.addAll(countryRepository.searchState(searchText.toLowerCase()).stream().collect(Collectors.toSet()));
 		loc.addAll(countryRepository.searchLocation(searchText.toLowerCase()).stream().collect(Collectors.toSet()));
@@ -200,6 +203,15 @@ public class CountryService {
 			loc.addAll(countryRepository.searchState(t.toLowerCase()).stream().collect(Collectors.toSet()));
 			loc.addAll(countryRepository.searchLocation(t.toLowerCase()).stream().collect(Collectors.toSet()));
 		});
+		return loc;
+	}
+	
+	public Set<LocationDTO> getAllLocationWithBlogCount(boolean vlog, Long limit) {
+		Set<LocationDTO> loc = new LinkedHashSet<>();
+		loc = new HashSet<LocationDTO>(blogPostRepository.findByCountryAndDeleted(vlog));
+		if (limit != null) {
+			return loc.stream().limit(limit).collect(Collectors.toSet());
+		}
 		return loc;
 	}
 

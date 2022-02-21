@@ -46,10 +46,10 @@ public class BlogPostDTO {
 		this.url = blogPost.getUrl();
 		this.blogImageId = blogPost.getBlogImage() != null ? blogPost.getBlogImage().getId() : null;
 		this.blogGenre = blogPost.getBlogGenre() != null ? blogPost.getBlogGenre().getGenre() : null;
-		this.title = blogPost.getTitle();
+//		this.title = blogPost.getTitle();
 		this.userId = blogPost.getBlogger() !=null ? blogPost.getBlogger().getId() : null;
 		this.userName = blogPost.getBlogger() !=null ? blogPost.getBlogger().getName() : null;
-		this.summery = blogPost.getSummery();
+//		this.summery = blogPost.getSummery();
 		this.vBlog = blogPost.getvBlog();
 		this.postedDate = blogPost.getCreateDate();
 		this.view = blogPost.getView();

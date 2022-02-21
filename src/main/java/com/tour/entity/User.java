@@ -93,6 +93,9 @@ public class User extends BaseEntity {
 
 	@Column(name = "password_update_date")
 	private LocalDateTime passwordUpdateDate;
+	
+	@Column(name = "bio")
+	private String bio;
 
 	public User(UserDTO userDTO) {
 		this.id = userDTO.getId();
@@ -103,6 +106,8 @@ public class User extends BaseEntity {
 //		this.blogger = userDTO.isBlogger();
 		this.hobby = Hobby.getEnum(userDTO.getHobby());
 		this.socialSiteLink = userDTO.getSocialSiteLink();
+		this.bio = userDTO.getBio();
+		
 	}
 
 	public User() {
@@ -251,6 +256,14 @@ public class User extends BaseEntity {
 
 	public void setSiteReview(SiteReview siteReview) {
 		this.siteReview = siteReview;
+	}
+
+	public String getBio() {
+		return bio;
+	}
+
+	public void setBio(String bio) {
+		this.bio = bio;
 	}
 
 	@Override
